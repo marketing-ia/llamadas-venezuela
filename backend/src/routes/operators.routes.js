@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
 
     const operators = await Operator.findAll({
       where: { tenant_id: tenantId },
-      attributes: ['id', 'name', 'email', 'twilio_number', 'status', 'createdAt']
+      attributes: ['id', 'name', 'twilio_number', 'sip_uri', 'createdAt']
     });
 
     res.json({ operators, total: operators.length });
@@ -43,19 +43,18 @@ router.get('/:id', async (req, res) => {
 // POST /api/operators - Create new operator
 router.post('/', async (req, res) => {
   try {
-    const { name, email, twilioNumber } = req.body;
+    const { name, twilioNumber, sipUri } = req.body;
     const tenantId = req.tenantId;
 
-    if (!name || !email || !twilioNumber) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!name || !twilioNumber || !sipUri) {
+      return res.status(400).json({ error: 'Missing required fields: name, twilioNumber, sipUri' });
     }
 
     const operator = await Operator.create({
       tenant_id: tenantId,
       name,
-      email,
       twilio_number: twilioNumber,
-      status: 'active'
+      sip_uri: sipUri
     });
 
     res.status(201).json(operator);
@@ -79,12 +78,11 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Operator not found' });
     }
 
-    const { name, email, twilioNumber, status } = req.body;
+    const { name, twilioNumber, sipUri } = req.body;
 
     if (name) operator.name = name;
-    if (email) operator.email = email;
     if (twilioNumber) operator.twilio_number = twilioNumber;
-    if (status) operator.status = status;
+    if (sipUri) operator.sip_uri = sipUri;
 
     await operator.save();
 
