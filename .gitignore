@@ -1,0 +1,47 @@
+# Environment variables - NEVER commit!
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+build/
+*/dist/
+*/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+
+# Temporary
+.tmp/
+temp/
+.vercel
+
+# Secrets
+.secrets/
+
+# Word files
+*.docx
