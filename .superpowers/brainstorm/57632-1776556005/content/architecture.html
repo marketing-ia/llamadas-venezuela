@@ -1,0 +1,78 @@
+<h2>Arquitectura del Sistema</h2>
+<p class="subtitle">Monolito modular con frontend y backend separados</p>
+
+<div class="mockup">
+  <div class="mockup-header">System Architecture</div>
+  <div class="mockup-body" style="font-family: monospace; line-height: 1.6; font-size: 12px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; padding: 20px;">
+      <!-- LEFT: Clients -->
+      <div style="border: 1px solid #ccc; padding: 15px; border-radius: 4px;">
+        <strong>👥 Clients</strong>
+        <div style="margin-top: 10px; font-size: 11px;">
+          <div style="margin: 5px 0; padding: 5px; background: #f0f0f0; border-radius: 3px;">Company A</div>
+          <div style="margin: 5px 0; padding: 5px; background: #f0f0f0; border-radius: 3px;">Company B</div>
+          <div style="margin: 5px 0; padding: 5px; background: #f0f0f0; border-radius: 3px;">Company N</div>
+        </div>
+      </div>
+
+      <!-- MIDDLE: Frontend -->
+      <div style="border: 2px solid #2563eb; padding: 15px; border-radius: 4px; background: #eff6ff;">
+        <strong style="color: #2563eb;">🖥️ Frontend (React)</strong>
+        <div style="margin-top: 10px; font-size: 11px;">
+          <div style="margin: 5px 0;">• Dashboard</div>
+          <div style="margin: 5px 0;">• Call Logs</div>
+          <div style="margin: 5px 0;">• Sales Scripts</div>
+          <div style="margin: 5px 0;">• Analytics</div>
+          <div style="margin: 5px 0;">• Operators Mgmt</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Backend Services -->
+      <div style="border: 2px solid #16a34a; padding: 15px; border-radius: 4px; background: #f0fdf4;">
+        <strong style="color: #16a34a;">⚙️ Backend (Node.js)</strong>
+        <div style="margin-top: 10px; font-size: 11px;">
+          <div style="margin: 5px 0;">🔷 Call Service</div>
+          <div style="margin: 5px 0;">📊 Analytics</div>
+          <div style="margin: 5px 0;">👤 Operators</div>
+          <div style="margin: 5px 0;">🎤 Twilio Handler</div>
+          <div style="margin: 5px 0;">🔒 Auth/Tenancy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- External Services -->
+    <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div style="border: 1px solid #ea580c; padding: 15px; border-radius: 4px; background: #fff7ed;">
+        <strong style="color: #ea580c;">📞 Twilio</strong>
+        <div style="margin-top: 10px; font-size: 11px;">
+          <div style="margin: 5px 0;">• Make Calls</div>
+          <div style="margin: 5px 0;">• SIP Termination</div>
+          <div style="margin: 5px 0;">• Webhooks (events)</div>
+          <div style="margin: 5px 0;">• Recording API</div>
+        </div>
+      </div>
+
+      <div style="border: 1px solid #7c3aed; padding: 15px; border-radius: 4px; background: #faf5ff;">
+        <strong style="color: #7c3aed;">🗄️ Database</strong>
+        <div style="margin-top: 10px; font-size: 11px;">
+          <div style="margin: 5px 0;">• PostgreSQL</div>
+          <div style="margin: 5px 0;">• Tenants</div>
+          <div style="margin: 5px 0;">• Operators</div>
+          <div style="margin: 5px 0;">• Call Records</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Flow -->
+    <div style="margin-top: 30px; padding: 15px; background: #f3f4f6; border-radius: 4px; font-size: 11px; line-height: 1.8;">
+      <strong>📊 Data Flow:</strong><br/>
+      1. Vendedor abre dashboard (React) → autenticado por tenant<br/>
+      2. Selecciona guión estático y abre en modal<br/>
+      3. Hace click en "Llamar" → Backend valida y llama Twilio API<br/>
+      4. Twilio ejecuta llamada → webhooks notifican cambios (inicio, fin, grabación)<br/>
+      5. Backend guarda eventos en PostgreSQL<br/>
+      6. Dashboard actualiza en tiempo real con estado de llamada<br/>
+      7. Analytics se actualizan con minutos, duraciones, etc.
+    </div>
+  </div>
+</div>
