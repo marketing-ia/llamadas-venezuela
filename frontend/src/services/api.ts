@@ -1,0 +1,265 @@
+import axios, { AxiosInstance } from 'axios';
+import { ApiError } from '../types';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000');
+
+class ApiClient {
+  private client: AxiosInstance;
+  private tenantId: string | null = null;
+
+  constructor() {
+    this.client = axios.create({
+      baseURL: API_BASE_URL,
+      timeout: API_TIMEOUT,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Add request interceptor to inject tenant ID
+    this.client.interceptors.request.use((config) => {
+      if (this.tenantId) {
+        config.headers['X-Tenant-ID'] = this.tenantId;
+      }
+      return config;
+    });
+
+    // Add response interceptor for error handling
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          // Unauthorized - trigger logout
+          window.dispatchEvent(new CustomEvent('unauthorized'));
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  setTenantId(tenantId: string) {
+    this.tenantId = tenantId;
+  }
+
+  getTenantId() {
+    return this.tenantId;
+  }
+
+  clearTenantId() {
+    this.tenantId = null;
+  }
+
+  private handleError(error: unknown): ApiError {
+    if (axios.isAxiosError(error)) {
+      return {
+        error: error.response?.data?.error || error.message,
+        stack: error.response?.data?.stack,
+      };
+    }
+    return {
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
+
+  // Auth endpoints
+  async login(tenantKey: string) {
+    try {
+      const response = await this.client.post('/auth/login', { tenantKey });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async logout() {
+    try {
+      const response = await this.client.post('/auth/logout');
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async verifyAuth() {
+    try {
+      const response = await this.client.get('/auth/verify');
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Calls endpoints
+  async initiateCall(operatorId: string, toNumber: string) {
+    try {
+      const response = await this.client.post('/calls/initiate', {
+        operatorId,
+        toNumber,
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getCallLogs(filters?: {
+    operatorId?: string;
+    startDate?: string;
+    endDate?: string;
+    status?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    try {
+      const response = await this.client.get('/calls/logs', { params: filters });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getCallById(callId: string) {
+    try {
+      const response = await this.client.get(`/calls/${callId}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Operators endpoints
+  async getOperators() {
+    try {
+      const response = await this.client.get('/operators');
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async createOperator(data: any) {
+    try {
+      const response = await this.client.post('/operators', data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getOperator(operatorId: string) {
+    try {
+      const response = await this.client.get(`/operators/${operatorId}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async updateOperator(operatorId: string, data: any) {
+    try {
+      const response = await this.client.put(`/operators/${operatorId}`, data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async deleteOperator(operatorId: string) {
+    try {
+      const response = await this.client.delete(`/operators/${operatorId}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Scripts endpoints
+  async getScripts() {
+    try {
+      const response = await this.client.get('/scripts');
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async createScript(data: any) {
+    try {
+      const response = await this.client.post('/scripts', data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getScript(scriptId: string) {
+    try {
+      const response = await this.client.get(`/scripts/${scriptId}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async updateScript(scriptId: string, data: any) {
+    try {
+      const response = await this.client.put(`/scripts/${scriptId}`, data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async deleteScript(scriptId: string) {
+    try {
+      const response = await this.client.delete(`/scripts/${scriptId}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Analytics endpoints
+  async getAnalyticsSummary() {
+    try {
+      const response = await this.client.get('/analytics/summary');
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getAnalyticsOperators(daysBack: number = 30) {
+    try {
+      const response = await this.client.get('/analytics/operators', {
+        params: { daysBack },
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getAnalyticsCost(daysBack: number = 30) {
+    try {
+      const response = await this.client.get('/analytics/cost', {
+        params: { daysBack },
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getBudgetAlert() {
+    try {
+      const response = await this.client.get('/analytics/budget-alert');
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+}
+
+export const apiClient = new ApiClient();
