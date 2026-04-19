@@ -15,6 +15,10 @@ export function Operators() {
     twilioNumber: '',
     sipUri: '',
   });
+  const [callingOperator, setCallingOperator] = useState<Operator | null>(null);
+  const [toNumber, setToNumber] = useState('');
+  const [callStatus, setCallStatus] = useState<'idle' | 'calling' | 'success' | 'error'>('idle');
+  const [callMessage, setCallMessage] = useState('');
   const { setError: setStoreError } = useStore();
 
   useEffect(() => {
@@ -71,6 +75,32 @@ export function Operators() {
     });
     setEditingId(operator.id);
     setShowForm(true);
+  };
+
+  const openCallModal = (operator: Operator) => {
+    setCallingOperator(operator);
+    setToNumber('');
+    setCallStatus('idle');
+    setCallMessage('');
+  };
+
+  const closeCallModal = () => {
+    setCallingOperator(null);
+    setCallStatus('idle');
+  };
+
+  const handleCall = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!callingOperator || !toNumber.trim()) return;
+    setCallStatus('calling');
+    try {
+      const result = await apiClient.initiateCall(callingOperator.id, toNumber.trim());
+      setCallStatus('success');
+      setCallMessage(`Llamada iniciada: ${result.callSid}`);
+    } catch (err: any) {
+      setCallStatus('error');
+      setCallMessage(err.error || 'Error al iniciar la llamada');
+    }
   };
 
   if (loading) {
@@ -203,6 +233,12 @@ export function Operators() {
                       </td>
                       <td className="px-6 py-4 flex space-x-2">
                         <button
+                          onClick={() => openCallModal(op)}
+                          className="text-green-400 hover:text-green-300 font-medium"
+                        >
+                          Llamar
+                        </button>
+                        <button
                           onClick={() => handleEdit(op)}
                           className="text-blue-400 hover:text-blue-300"
                         >
@@ -223,6 +259,74 @@ export function Operators() {
           </div>
         </div>
       </div>
+
+      {callingOperator && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-lg shadow-xl p-6 w-full max-w-sm border border-slate-700">
+            <h3 className="text-xl font-bold text-white mb-1">Iniciar llamada</h3>
+            <p className="text-gray-400 text-sm mb-4">
+              Operador: <span className="text-gray-200">{callingOperator.name}</span>
+              {' '}desde <span className="text-gray-200">{callingOperator.twilio_number}</span>
+            </p>
+
+            {callStatus === 'success' ? (
+              <div className="space-y-3">
+                <div className="p-3 bg-green-900/50 border border-green-700 rounded text-green-100 text-sm break-all">
+                  {callMessage}
+                </div>
+                <button
+                  onClick={closeCallModal}
+                  className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded transition-colors"
+                >
+                  Cerrar
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleCall} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Numero a llamar
+                  </label>
+                  <input
+                    type="tel"
+                    value={toNumber}
+                    onChange={(e) => setToNumber(e.target.value)}
+                    placeholder="+58412xxxxxxx"
+                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    disabled={callStatus === 'calling'}
+                    autoFocus
+                    required
+                  />
+                </div>
+
+                {callStatus === 'error' && (
+                  <div className="p-3 bg-red-900/50 border border-red-700 rounded text-red-100 text-sm">
+                    {callMessage}
+                  </div>
+                )}
+
+                <div className="flex space-x-2">
+                  <button
+                    type="submit"
+                    disabled={callStatus === 'calling' || !toNumber.trim()}
+                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded transition-colors"
+                  >
+                    {callStatus === 'calling' ? 'Llamando...' : 'Llamar'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeCallModal}
+                    disabled={callStatus === 'calling'}
+                    className="bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-white py-2 px-4 rounded transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }
