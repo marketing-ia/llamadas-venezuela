@@ -3,7 +3,7 @@ import { apiClient } from '../services/api';
 import { useStore } from '../store';
 
 export function useAuth() {
-  const { setTenant, setLoading, setError, logout: storeLogout } = useStore();
+  const { setTenant, setLoading, setError, logout: storeLogout, isLoading } = useStore();
 
   const login = useCallback(
     async (tenantKey: string) => {
@@ -63,5 +63,5 @@ export function useAuth() {
     return false;
   }, [setTenant]);
 
-  return { login, logout, checkAuth };
+  return { login, logout, checkAuth, isLoading };
 }
