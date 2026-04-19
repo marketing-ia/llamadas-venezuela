@@ -1,0 +1,25 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules
+dist
+.pnp
+.pnp.js
+
+# Testing
+coverage
+
+# Production
+/build
+
+# Misc
+.DS_Store
+.env.local
+.env.*.local
+.idea
+*.swp
+*.swo
+*~
