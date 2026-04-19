@@ -221,40 +221,27 @@ class ApiClient {
   }
 
   // Analytics endpoints
-  async getAnalyticsSummary() {
+  async getAnalyticsSummary(params?: { startDate?: string; endDate?: string }) {
     try {
-      const response = await this.client.get('/analytics/summary');
+      const response = await this.client.get('/analytics/summary', { params });
       return response.data;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  async getAnalyticsOperators(daysBack: number = 30) {
+  async getAnalyticsOperators(params?: { startDate?: string; endDate?: string }) {
     try {
-      const response = await this.client.get('/analytics/operators', {
-        params: { daysBack },
-      });
+      const response = await this.client.get('/analytics/operator-stats', { params });
       return response.data;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-  async getAnalyticsCost(daysBack: number = 30) {
+  async getAnalyticsDailyStats(params?: { startDate?: string; endDate?: string }) {
     try {
-      const response = await this.client.get('/analytics/cost', {
-        params: { daysBack },
-      });
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  async getBudgetAlert() {
-    try {
-      const response = await this.client.get('/analytics/budget-alert');
+      const response = await this.client.get('/analytics/daily', { params });
       return response.data;
     } catch (error) {
       throw this.handleError(error);

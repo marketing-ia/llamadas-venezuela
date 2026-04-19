@@ -102,40 +102,28 @@ export interface CallLogsResponse {
   total: number;
 }
 
-// Analytics types
+// Analytics types — shapes match backend /api/analytics/* responses
 export interface AnalyticsSummary {
-  today: {
-    calls: number;
-    minutes: number;
-    cost: number;
-  };
-  monthToDate: {
-    cost: number;
-    budget?: number;
-  };
+  totalCalls: number;
+  totalCost: number | string;
+  totalDuration: number | string; // seconds
+  statusBreakdown: Array<{ status: string; count: number | string }>;
 }
 
-export interface OperatorAnalytics {
+// Sequelize raw:true flattens the Operator join → "Operator.name" key
+export interface OperatorStats {
   operator_id: string;
-  callsCount: string;
-  totalDurationSeconds: string;
+  callCount: string;
+  totalDuration: string; // seconds
   totalCost: string;
-  Operator: {
-    name: string;
-  };
+  'Operator.id'?: string;
+  'Operator.name'?: string;
 }
 
-export interface CostBreakdown {
+export interface DailyStat {
   date: string;
-  callsCount: string;
+  callCount: string;
   totalCost: string;
-}
-
-export interface BudgetAlert {
-  alert: boolean;
-  monthCost: number;
-  budget?: number;
-  percentage: number;
 }
 
 // API Error types

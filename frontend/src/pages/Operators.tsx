@@ -29,7 +29,7 @@ export function Operators() {
     try {
       setLoading(true);
       const data = await apiClient.getOperators();
-      setOperators(data);
+      setOperators(data.operators ?? []);
     } catch (err: any) {
       const errorMsg = err.error || 'Failed to load operators';
       setError(errorMsg);
