@@ -12,9 +12,12 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Missing tenant key' });
     }
 
-    // For demo: use tenantKey as tenantId directly
-    // In production: validate against a secrets table
-    const tenant = await Tenant.findByPk(tenantKey, {
+    // Accept "tenant1" shorthand or the full UUID
+    const resolvedKey = tenantKey === 'tenant1'
+      ? '00000000-0000-0000-0000-000000000001'
+      : tenantKey;
+
+    const tenant = await Tenant.findByPk(resolvedKey, {
       attributes: ['id', 'name']
     });
 

@@ -49,16 +49,19 @@ export function Login() {
             </label>
             <input
               id="tenantKey"
-              type="password"
+              type="text"
               value={tenantKey}
               onChange={(e) => {
                 setTenantKey(e.target.value);
                 setError(null);
               }}
-              placeholder="Enter your tenant secret key"
+              placeholder="tenant1"
               className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               disabled={isSubmitting}
             />
+            <p className="text-gray-500 text-xs mt-1">
+              Demo: use <button type="button" className="text-blue-400 underline" onClick={() => setTenantKey('tenant1')}>tenant1</button>
+            </p>
           </div>
 
           <button
