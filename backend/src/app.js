@@ -62,7 +62,7 @@ app.get('/health', (req, res) => {
 
 // Unauthenticated routes (no tenancy middleware)
 app.use('/api/auth', authRoutes);
-app.post('/api/webhooks/twilio', twilioWebhook);
+app.use('/api/webhooks/twilio', twilioWebhook);
 
 // Tenancy middleware for protected routes
 app.use('/api/', tenancyMiddleware);
