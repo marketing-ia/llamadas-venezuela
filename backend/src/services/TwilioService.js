@@ -15,7 +15,7 @@ class TwilioService {
 
       const client = getTwilioClientByTenant(tenant);
 
-      const call = await client.api.calls.create({
+      const call = await client.calls.create({
         to: toNumber,
         from: operator.twilio_number,
         url: `${process.env.BACKEND_URL}/api/webhooks/twilio`,
