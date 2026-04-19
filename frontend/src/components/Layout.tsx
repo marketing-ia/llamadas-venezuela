@@ -28,22 +28,22 @@ export function Layout({ children, currentPage }: LayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-slate-950 border-b border-slate-800">
+      <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-white">Calling Platform</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Calling Platform</h1>
 
             {/* User menu */}
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <div className="text-right">
-                  <div className="text-sm font-medium">{tenant?.name}</div>
-                  <div className="text-xs text-gray-500">{tenant?.id}</div>
+                  <div className="text-sm font-medium text-gray-800">{tenant?.name}</div>
+                  <div className="text-xs text-gray-400">{tenant?.id}</div>
                 </div>
                 <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
                   {tenant?.name?.charAt(0).toUpperCase()}
@@ -51,10 +51,10 @@ export function Layout({ children, currentPage }: LayoutProps) {
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-slate-800 rounded-lg shadow-xl z-10 border border-slate-700">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-10 border border-gray-200">
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                   >
                     Logout
                   </button>
@@ -66,7 +66,7 @@ export function Layout({ children, currentPage }: LayoutProps) {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-slate-800 border-b border-slate-700">
+      <nav className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             {navItems.map((item) => (
@@ -75,8 +75,8 @@ export function Layout({ children, currentPage }: LayoutProps) {
                 onClick={() => navigate(item.path)}
                 className={`px-1 py-3 border-b-2 font-medium text-sm transition-colors ${
                   currentPage === item.id
-                    ? 'border-blue-500 text-blue-400'
-                    : 'border-transparent text-gray-400 hover:text-gray-300'
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
                 {item.label}
