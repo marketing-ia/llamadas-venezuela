@@ -12,28 +12,23 @@ import { Analytics } from './pages/Analytics';
 import './App.css';
 
 function App() {
-  const { checkAuth, isLoading: authLoading } = useAuth();
+  const { checkAuth } = useAuth();
   const { isLoading } = useStore();
 
   useEffect(() => {
     checkAuth();
   }, []);
 
-  const loading = authLoading || isLoading;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-white">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <BrowserRouter>
+      {isLoading && (
+        <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
+          <div className="text-center text-gray-600">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p>Loading...</p>
+          </div>
+        </div>
+      )}
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route
