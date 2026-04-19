@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+/* Force light color-scheme so macOS Dark Mode doesn't override input colors */
+:root {
+  color-scheme: light;
+}
+
+body {
+  background-color: #0f172a;
+  color: white;
+}
+
+/* Ensure inputs always show white text on dark backgrounds */
+input, textarea, select {
+  color: white;
+  -webkit-text-fill-color: white;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #6b7280;
+  -webkit-text-fill-color: #6b7280;
+}
