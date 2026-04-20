@@ -18,7 +18,9 @@ class TwilioService {
       const call = await client.calls.create({
         to: toNumber,
         from: operator.twilio_number,
-        url: `${process.env.BACKEND_URL}/api/webhooks/twilio`,
+        url: `${process.env.BACKEND_URL}/api/webhooks/twiml`,
+        statusCallback: `${process.env.BACKEND_URL}/api/webhooks/twilio`,
+        statusCallbackEvent: ['answered', 'completed'],
         record: 'record-from-answer',
         recordingChannels: 'mono'
       });

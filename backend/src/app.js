@@ -11,10 +11,14 @@ import operatorsRoutes from './routes/operators.routes.js';
 import scriptsRoutes from './routes/scripts.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import twilioWebhook from './webhooks/twilio.webhook.js';
+import twimlWebhook from './webhooks/twiml.webhook.js';
 
 dotenv.config();
 
 const app = express();
+
+// Trust Railway's proxy so rate-limiter can resolve real client IPs
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet());
@@ -63,6 +67,7 @@ app.get('/health', (req, res) => {
 // Unauthenticated routes (no tenancy middleware)
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks/twilio', twilioWebhook);
+app.use('/api/webhooks/twiml', twimlWebhook);
 
 // Tenancy middleware for protected routes
 app.use('/api/', tenancyMiddleware);
