@@ -3,7 +3,7 @@ import { apiClient } from '../services/api';
 import { useStore } from '../store';
 
 export function useAuth() {
-  const { setTenant, setLoading, setError, logout: storeLogout, isLoading } = useStore();
+  const { setTenant, setLoading, setError, setAuthChecked, logout: storeLogout, isLoading } = useStore();
 
   const login = useCallback(
     async (tenantKey: string) => {
@@ -60,8 +60,9 @@ export function useAuth() {
         localStorage.removeItem('tenantName');
       }
     }
+    setAuthChecked();
     return false;
-  }, [setTenant]);
+  }, [setTenant, setAuthChecked]);
 
   return { login, logout, checkAuth, isLoading };
 }

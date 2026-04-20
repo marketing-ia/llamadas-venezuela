@@ -47,10 +47,11 @@ router.post('/logout', (req, res) => {
   res.json({ success: true });
 });
 
-// GET /api/auth/verify - Check current session
+// GET /api/auth/verify - Check current session or X-Tenant-ID header
 router.get('/verify', (req, res) => {
-  if (req.session?.tenantId) {
-    res.json({ authenticated: true, tenantId: req.session.tenantId });
+  const tenantId = req.session?.tenantId || req.headers['x-tenant-id'];
+  if (tenantId) {
+    res.json({ authenticated: true, tenantId });
   } else {
     res.status(401).json({ authenticated: false });
   }
