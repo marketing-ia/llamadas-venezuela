@@ -21,7 +21,7 @@ class TwilioService {
         url: `${process.env.BACKEND_URL}/api/webhooks/twiml`,
         statusCallback: `${process.env.BACKEND_URL}/api/webhooks/twilio`,
         statusCallbackEvent: ['answered', 'completed'],
-        record: 'record-from-answer',
+        record: true,
         recordingChannels: 'mono'
       });
 
