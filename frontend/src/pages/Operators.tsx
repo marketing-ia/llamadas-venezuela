@@ -106,7 +106,7 @@ export function Operators() {
   if (loading) {
     return (
       <Layout currentPage="operators">
-        <div className="text-center text-gray-500">Loading operators...</div>
+        <div className="text-center text-slate-400">Loading operators...</div>
       </Layout>
     );
   }
@@ -115,73 +115,61 @@ export function Operators() {
     <Layout currentPage="operators">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-gray-900">Operators</h2>
+          <h2 className="text-3xl font-bold text-white">Operators</h2>
           <button
             onClick={() => {
               setShowForm(!showForm);
               setEditingId(null);
               setFormData({ name: '', twilioNumber: '', sipUri: '' });
             }}
-            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors"
+            className="bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded transition-colors"
           >
             {showForm ? 'Cancel' : 'Add Operator'}
           </button>
         </div>
 
         {error && (
-          <div className="text-red-600 bg-red-50 border border-red-200 p-4 rounded">{error}</div>
+          <div className="text-red-400 bg-red-900/30 border border-red-700 p-4 rounded">{error}</div>
         )}
 
         {showForm && (
-          <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
+            <h3 className="text-xl font-semibold text-white mb-4">
               {editingId ? 'Edit' : 'New'} Operator
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Name
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Name</label>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Operator name"
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Twilio Number
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Twilio Number</label>
                 <input
                   type="tel"
                   value={formData.twilioNumber}
-                  onChange={(e) =>
-                    setFormData({ ...formData, twilioNumber: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, twilioNumber: e.target.value })}
                   placeholder="+1234567890"
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  SIP URI
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">SIP URI</label>
                 <input
                   type="text"
                   value={formData.sipUri}
-                  onChange={(e) =>
-                    setFormData({ ...formData, sipUri: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, sipUri: e.target.value })}
                   placeholder="sip://user@host.com"
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
@@ -189,14 +177,14 @@ export function Operators() {
               <div className="flex space-x-2">
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors"
+                  className="bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded transition-colors"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded transition-colors"
+                  className="bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 px-4 rounded transition-colors"
                 >
                   Cancel
                 </button>
@@ -205,48 +193,46 @@ export function Operators() {
           </div>
         )}
 
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-slate-700 border-b border-slate-600">
                 <tr>
-                  <th className="px-6 py-3 text-left text-gray-600 font-medium">Name</th>
-                  <th className="px-6 py-3 text-left text-gray-600 font-medium">Twilio Number</th>
-                  <th className="px-6 py-3 text-left text-gray-600 font-medium">SIP URI</th>
-                  <th className="px-6 py-3 text-left text-gray-600 font-medium">Actions</th>
+                  <th className="px-6 py-3 text-left text-slate-300 font-medium">Name</th>
+                  <th className="px-6 py-3 text-left text-slate-300 font-medium">Twilio Number</th>
+                  <th className="px-6 py-3 text-left text-slate-300 font-medium">SIP URI</th>
+                  <th className="px-6 py-3 text-left text-slate-300 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {operators.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                    <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
                       No operators found
                     </td>
                   </tr>
                 ) : (
                   operators.map((op) => (
-                    <tr key={op.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-6 py-4 text-gray-800">{op.name}</td>
-                      <td className="px-6 py-4 text-gray-800">{op.twilio_number}</td>
-                      <td className="px-6 py-4 text-gray-600 text-xs font-mono">
-                        {op.sip_uri}
-                      </td>
+                    <tr key={op.id} className="border-b border-slate-700 hover:bg-slate-700/50">
+                      <td className="px-6 py-4 text-white">{op.name}</td>
+                      <td className="px-6 py-4 text-slate-200">{op.twilio_number}</td>
+                      <td className="px-6 py-4 text-slate-400 text-xs font-mono">{op.sip_uri}</td>
                       <td className="px-6 py-4 flex space-x-2">
                         <button
                           onClick={() => openCallModal(op)}
-                          className="text-green-600 hover:text-green-800 font-medium"
+                          className="text-green-400 hover:text-green-300 font-medium"
                         >
                           Llamar
                         </button>
                         <button
                           onClick={() => handleEdit(op)}
-                          className="text-blue-600 hover:text-blue-800"
+                          className="text-blue-400 hover:text-blue-300"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDelete(op.id)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-red-400 hover:text-red-300"
                         >
                           Delete
                         </button>
@@ -261,22 +247,22 @@ export function Operators() {
       </div>
 
       {callingOperator && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm border border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900 mb-1">Iniciar llamada</h3>
-            <p className="text-gray-500 text-sm mb-4">
-              Operador: <span className="text-gray-800 font-medium">{callingOperator.name}</span>
-              {' '}desde <span className="text-gray-800 font-medium">{callingOperator.twilio_number}</span>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-xl shadow-2xl p-6 w-full max-w-sm border border-slate-700">
+            <h3 className="text-xl font-bold text-white mb-1">Iniciar llamada</h3>
+            <p className="text-slate-400 text-sm mb-4">
+              Operador: <span className="text-white font-medium">{callingOperator.name}</span>
+              {' '}desde <span className="text-white font-medium">{callingOperator.twilio_number}</span>
             </p>
 
             {callStatus === 'success' ? (
               <div className="space-y-3">
-                <div className="p-3 bg-green-50 border border-green-300 rounded text-green-800 text-sm break-all">
+                <div className="p-3 bg-green-900/40 border border-green-600 rounded text-green-400 text-sm break-all">
                   {callMessage}
                 </div>
                 <button
                   onClick={closeCallModal}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded transition-colors"
+                  className="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 px-4 rounded transition-colors"
                 >
                   Cerrar
                 </button>
@@ -284,7 +270,7 @@ export function Operators() {
             ) : (
               <form onSubmit={handleCall} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     Numero a llamar
                   </label>
                   <input
@@ -292,7 +278,7 @@ export function Operators() {
                     value={toNumber}
                     onChange={(e) => setToNumber(e.target.value)}
                     placeholder="+58412xxxxxxx"
-                    className="w-full px-4 py-2 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/30"
                     disabled={callStatus === 'calling'}
                     autoFocus
                     required
@@ -300,7 +286,7 @@ export function Operators() {
                 </div>
 
                 {callStatus === 'error' && (
-                  <div className="p-3 bg-red-50 border border-red-300 rounded text-red-700 text-sm">
+                  <div className="p-3 bg-red-900/40 border border-red-600 rounded text-red-400 text-sm">
                     {callMessage}
                   </div>
                 )}
@@ -309,7 +295,7 @@ export function Operators() {
                   <button
                     type="submit"
                     disabled={callStatus === 'calling' || !toNumber.trim()}
-                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded transition-colors"
+                    className="flex-1 bg-green-600 hover:bg-green-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded transition-colors"
                   >
                     {callStatus === 'calling' ? 'Llamando...' : 'Llamar'}
                   </button>
@@ -317,7 +303,7 @@ export function Operators() {
                     type="button"
                     onClick={closeCallModal}
                     disabled={callStatus === 'calling'}
-                    className="bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 py-2 px-4 rounded transition-colors"
+                    className="bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-slate-300 py-2 px-4 rounded transition-colors"
                   >
                     Cancelar
                   </button>

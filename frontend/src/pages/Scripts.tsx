@@ -74,7 +74,7 @@ export function Scripts() {
   if (loading) {
     return (
       <Layout currentPage="scripts">
-        <div className="text-center text-gray-500">Loading scripts...</div>
+        <div className="text-center text-slate-400">Loading scripts...</div>
       </Layout>
     );
   }
@@ -83,57 +83,49 @@ export function Scripts() {
     <Layout currentPage="scripts">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-gray-900">Sales Scripts</h2>
+          <h2 className="text-3xl font-bold text-white">Sales Scripts</h2>
           <button
             onClick={() => {
               setShowForm(!showForm);
               setEditingId(null);
               setFormData({ title: '', content: '' });
             }}
-            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors"
+            className="bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded transition-colors"
           >
             {showForm ? 'Cancel' : 'New Script'}
           </button>
         </div>
 
         {error && (
-          <div className="text-red-600 bg-red-50 border border-red-200 p-4 rounded">{error}</div>
+          <div className="text-red-400 bg-red-900/30 border border-red-700 p-4 rounded">{error}</div>
         )}
 
         {showForm && (
-          <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
+            <h3 className="text-xl font-semibold text-white mb-4">
               {editingId ? 'Edit' : 'New'} Script
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Title
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Title</label>
                 <input
                   type="text"
                   value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Script title"
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Content
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Content</label>
                 <textarea
                   value={formData.content}
-                  onChange={(e) =>
-                    setFormData({ ...formData, content: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   placeholder="Enter your sales script here..."
                   rows={8}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
@@ -141,14 +133,14 @@ export function Scripts() {
               <div className="flex space-x-2">
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors"
+                  className="bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded transition-colors"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded transition-colors"
+                  className="bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 px-4 rounded transition-colors"
                 >
                   Cancel
                 </button>
@@ -159,31 +151,27 @@ export function Scripts() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {scripts.length === 0 ? (
-            <div className="col-span-2 text-center text-gray-400 py-8">
+            <div className="col-span-2 text-center text-slate-500 py-8">
               No scripts found
             </div>
           ) : (
             scripts.map((script) => (
               <div
                 key={script.id}
-                className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm"
+                className="bg-slate-800 rounded-lg p-6 border border-slate-700"
               >
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {script.title}
-                </h3>
-                <p className="text-gray-500 text-sm mb-4 line-clamp-3">
-                  {script.content}
-                </p>
+                <h3 className="text-lg font-semibold text-white mb-2">{script.title}</h3>
+                <p className="text-slate-400 text-sm mb-4 line-clamp-3">{script.content}</p>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleEdit(script)}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
+                    className="text-blue-400 hover:text-blue-300 text-sm"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(script.id)}
-                    className="text-red-500 hover:text-red-700 text-sm"
+                    className="text-red-400 hover:text-red-300 text-sm"
                   >
                     Delete
                   </button>
