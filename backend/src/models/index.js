@@ -2,6 +2,7 @@ import Tenant from './Tenant.js';
 import Operator from './Operator.js';
 import SalesScript from './SalesScript.js';
 import CallRecord from './CallRecord.js';
+import OutboundNumber from './OutboundNumber.js';
 
 // Define associations
 Tenant.hasMany(Operator, { foreignKey: 'tenant_id' });
@@ -13,7 +14,10 @@ SalesScript.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 Tenant.hasMany(CallRecord, { foreignKey: 'tenant_id' });
 CallRecord.belongsTo(Tenant, { foreignKey: 'tenant_id' });
 
+Tenant.hasMany(OutboundNumber, { foreignKey: 'tenant_id' });
+OutboundNumber.belongsTo(Tenant, { foreignKey: 'tenant_id' });
+
 Operator.hasMany(CallRecord, { foreignKey: 'operator_id' });
 CallRecord.belongsTo(Operator, { foreignKey: 'operator_id' });
 
-export { Tenant, Operator, SalesScript, CallRecord };
+export { Tenant, Operator, SalesScript, CallRecord, OutboundNumber };

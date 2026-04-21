@@ -21,7 +21,7 @@ const Operator = sequelize.define('Operator', {
   },
   twilio_number: {
     type: DataTypes.STRING(20),
-    allowNull: false
+    allowNull: true
   },
   sip_uri: {
     type: DataTypes.STRING(255),

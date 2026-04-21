@@ -1,15 +1,16 @@
 import dotenv from 'dotenv';
+dotenv.config();
+
 import app from './src/app.js';
 import { initializeDatabase } from './src/config/database.js';
-
-dotenv.config();
+import { Tenant, OutboundNumber } from './src/models/index.js';
 
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 async function startServer() {
   try {
-    await initializeDatabase();
+    await initializeDatabase(Tenant, OutboundNumber);
     console.log('Database initialized successfully');
 
     app.listen(PORT, () => {
