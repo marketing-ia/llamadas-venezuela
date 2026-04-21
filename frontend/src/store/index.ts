@@ -1,14 +1,14 @@
 import { create } from 'zustand';
-import { Tenant } from '../types';
+import { AppUser } from '../types';
 
 interface StoreState {
-  tenant: Tenant | null;
+  user: AppUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   authChecked: boolean;
   error: string | null;
 
-  setTenant: (tenant: Tenant) => void;
+  setUser: (user: AppUser) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -16,34 +16,19 @@ interface StoreState {
 }
 
 export const useStore = create<StoreState>((set) => ({
-  tenant: null,
+  user: null,
   isAuthenticated: false,
   isLoading: false,
   authChecked: false,
   error: null,
 
-  setTenant: (tenant: Tenant) =>
-    set({
-      tenant,
-      isAuthenticated: true,
-      authChecked: true,
-      error: null,
-    }),
+  setUser: (user: AppUser) =>
+    set({ user, isAuthenticated: true, authChecked: true, error: null }),
 
   logout: () =>
-    set({
-      tenant: null,
-      isAuthenticated: false,
-      authChecked: true,
-      error: null,
-    }),
+    set({ user: null, isAuthenticated: false, authChecked: true, error: null }),
 
-  setLoading: (loading: boolean) =>
-    set({ isLoading: loading }),
-
-  setError: (error: string | null) =>
-    set({ error }),
-
-  setAuthChecked: () =>
-    set({ authChecked: true }),
+  setLoading: (loading: boolean) => set({ isLoading: loading }),
+  setError: (error: string | null) => set({ error }),
+  setAuthChecked: () => set({ authChecked: true }),
 }));

@@ -1,15 +1,41 @@
 // Auth types
+export interface TrialInfo {
+  expiresAt: string;
+  maxCalls: number;
+  callsUsed: number;
+  callsRemaining: number;
+}
+
+export interface AppUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'master' | 'trial';
+  tenantId: string;
+  trialInfo: TrialInfo | null;
+}
+
 export interface AuthResponse {
   success: boolean;
-  tenant: {
-    id: string;
-    name: string;
-  };
+  user: AppUser;
 }
 
 export interface AuthVerifyResponse {
   authenticated: boolean;
   tenantId?: string;
+  user?: AppUser | null;
+}
+
+export interface TrialAccount {
+  id: string;
+  name: string;
+  email: string;
+  role: 'trial';
+  trial_expires_at: string;
+  max_calls: number;
+  calls_used: number;
+  is_active: boolean;
+  createdAt: string;
 }
 
 // Tenant types

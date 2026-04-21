@@ -3,30 +3,29 @@ import { apiClient } from '../services/api';
 import { useStore } from '../store';
 
 export function useAuth() {
-  const { setTenant, setLoading, setError, setAuthChecked, logout: storeLogout, isLoading } = useStore();
+  const { setUser, setLoading, setError, setAuthChecked, logout: storeLogout, isLoading } = useStore();
 
   const login = useCallback(
-    async (tenantKey: string) => {
+    async (email: string, password: string) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await apiClient.login(tenantKey);
-        const tenantId = response.tenant.id;
-
-        apiClient.setTenantId(tenantId);
-        localStorage.setItem('tenantId', tenantId);
-        localStorage.setItem('tenantName', response.tenant.name);
-
-        setTenant(response.tenant);
+        const response = await apiClient.login(email, password);
+        const user = response.user;
+        apiClient.setTenantId(user.tenantId);
+        localStorage.setItem('tenantId', user.tenantId);
+        localStorage.setItem('userId', user.id);
+        localStorage.setItem('userRole', user.role);
+        setUser(user);
         return true;
       } catch (error: any) {
-        setError(error.error || 'Login failed');
+        setError(error.error || 'Error al iniciar sesión');
         return false;
       } finally {
         setLoading(false);
       }
     },
-    [setTenant, setLoading, setError]
+    [setUser, setLoading, setError]
   );
 
   const logout = useCallback(async () => {
@@ -34,7 +33,8 @@ export function useAuth() {
     try {
       await apiClient.logout();
       localStorage.removeItem('tenantId');
-      localStorage.removeItem('tenantName');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userRole');
       apiClient.clearTenantId();
       storeLogout();
     } catch (error: any) {
@@ -50,19 +50,19 @@ export function useAuth() {
       apiClient.setTenantId(tenantId);
       try {
         const response = await apiClient.verifyAuth();
-        if (response.authenticated) {
-          const tenantName = localStorage.getItem('tenantName') || 'Tenant';
-          setTenant({ id: tenantId, name: tenantName, timezone: 'UTC', createdAt: '', updatedAt: '' });
+        if (response.authenticated && response.user) {
+          setUser(response.user);
           return true;
         }
       } catch {
         localStorage.removeItem('tenantId');
-        localStorage.removeItem('tenantName');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userRole');
       }
     }
     setAuthChecked();
     return false;
-  }, [setTenant, setAuthChecked]);
+  }, [setUser, setAuthChecked]);
 
   return { login, logout, checkAuth, isLoading };
 }

@@ -63,9 +63,46 @@ class ApiClient {
   }
 
   // Auth endpoints
-  async login(tenantKey: string) {
+  async login(email: string, password: string) {
     try {
-      const response = await this.client.post('/auth/login', { tenantKey });
+      const response = await this.client.post('/auth/login', { email, password });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Admin endpoints
+  async getTrialAccounts() {
+    try {
+      const response = await this.client.get('/admin/trials');
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async createTrialAccount(data: { name: string; email: string; password: string; days?: number; max_calls?: number }) {
+    try {
+      const response = await this.client.post('/admin/trials', data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async updateTrialAccount(id: string, data: { days?: number; is_active?: boolean; max_calls?: number }) {
+    try {
+      const response = await this.client.patch(`/admin/trials/${id}`, data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async deleteTrialAccount(id: string) {
+    try {
+      const response = await this.client.delete(`/admin/trials/${id}`);
       return response.data;
     } catch (error) {
       throw this.handleError(error);

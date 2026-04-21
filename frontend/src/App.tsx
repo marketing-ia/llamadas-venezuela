@@ -9,6 +9,7 @@ import { CallLogs } from './pages/CallLogs';
 import { Operators } from './pages/Operators';
 import { Scripts } from './pages/Scripts';
 import { Analytics } from './pages/Analytics';
+import { Admin } from './pages/Admin';
 import './App.css';
 
 function App() {
@@ -68,6 +69,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Analytics />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <Admin />
             </ProtectedRoute>
           }
         />

@@ -11,6 +11,7 @@ import operatorsRoutes from './routes/operators.routes.js';
 import scriptsRoutes from './routes/scripts.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import numbersRoutes from './routes/numbers.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 import twilioWebhook from './webhooks/twilio.webhook.js';
 import twimlWebhook from './webhooks/twiml.webhook.js';
 
@@ -79,6 +80,7 @@ app.use('/api/operators', operatorsRoutes);
 app.use('/api/scripts', scriptsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/numbers', numbersRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 handler
 app.use((req, res) => {

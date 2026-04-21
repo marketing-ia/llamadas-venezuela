@@ -3,14 +3,14 @@ dotenv.config();
 
 import app from './src/app.js';
 import { initializeDatabase } from './src/config/database.js';
-import { Tenant, OutboundNumber } from './src/models/index.js';
+import { Tenant, OutboundNumber, User } from './src/models/index.js';
 
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 async function startServer() {
   try {
-    await initializeDatabase(Tenant, OutboundNumber);
+    await initializeDatabase(Tenant, OutboundNumber, User);
     console.log('Database initialized successfully');
 
     app.listen(PORT, () => {
