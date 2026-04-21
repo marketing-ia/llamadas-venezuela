@@ -2,6 +2,7 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import { authMiddleware } from './middleware/auth.js';
 import dotenv from 'dotenv';
 
 import { tenancyMiddleware } from './middleware/tenancy.js';
@@ -71,7 +72,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/webhooks/twilio', twilioWebhook);
 app.use('/api/webhooks/twiml', twimlWebhook);
 
-// Tenancy middleware for protected routes
+// Auth + tenancy middleware for protected routes
+app.use('/api/', authMiddleware);
 app.use('/api/', tenancyMiddleware);
 
 // Protected API routes

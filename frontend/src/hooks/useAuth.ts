@@ -3,7 +3,7 @@ import { apiClient } from '../services/api';
 import { useStore } from '../store';
 
 export function useAuth() {
-  const { setUser, setLoading, setError, setAuthChecked, logout: storeLogout, isLoading } = useStore();
+  const { setUser, setLoading, setError, setAuthChecked, logout: storeLogout, token, isLoading } = useStore();
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -11,12 +11,10 @@ export function useAuth() {
       setError(null);
       try {
         const response = await apiClient.login(email, password);
-        const user = response.user;
+        const { user, token } = response;
+        apiClient.setToken(token);
         apiClient.setTenantId(user.tenantId);
-        localStorage.setItem('tenantId', user.tenantId);
-        localStorage.setItem('userId', user.id);
-        localStorage.setItem('userRole', user.role);
-        setUser(user);
+        setUser(user, token);
         return true;
       } catch (error: any) {
         setError(error.error || 'Error al iniciar sesión');
@@ -32,37 +30,31 @@ export function useAuth() {
     setLoading(true);
     try {
       await apiClient.logout();
-      localStorage.removeItem('tenantId');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userRole');
-      apiClient.clearTenantId();
+    } catch { /* stateless JWT logout is always ok */ } finally {
+      apiClient.clearAuth();
       storeLogout();
-    } catch (error: any) {
-      setError(error.error || 'Logout failed');
-    } finally {
       setLoading(false);
     }
-  }, [setLoading, setError, storeLogout]);
+  }, [setLoading, storeLogout]);
 
   const checkAuth = useCallback(async () => {
-    const tenantId = localStorage.getItem('tenantId');
-    if (tenantId) {
-      apiClient.setTenantId(tenantId);
+    const { token: storedToken, user: storedUser } = useStore.getState();
+    if (storedToken && storedUser) {
+      apiClient.setToken(storedToken);
+      apiClient.setTenantId(storedUser.tenantId);
       try {
         const response = await apiClient.verifyAuth();
         if (response.authenticated && response.user) {
-          setUser(response.user);
+          setUser(response.user, storedToken);
           return true;
         }
       } catch {
-        localStorage.removeItem('tenantId');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userRole');
+        storeLogout();
       }
     }
     setAuthChecked();
     return false;
-  }, [setUser, setAuthChecked]);
+  }, [setUser, setAuthChecked, storeLogout]);
 
   return { login, logout, checkAuth, isLoading };
 }

@@ -31,8 +31,8 @@ router.post('/initiate', operatorCallLimiter, trialLimitsMiddleware, async (req,
     });
 
     // Track trial call usage
-    if (req.session?.role === 'trial') {
-      await incrementTrialCalls(req.session.userId);
+    if (req.user?.role === 'trial') {
+      await incrementTrialCalls(req.user.userId);
     }
 
     res.json(call);

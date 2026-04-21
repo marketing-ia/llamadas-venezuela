@@ -1,8 +1,8 @@
 import { User } from '../models/index.js';
 
 export async function trialLimitsMiddleware(req, res, next) {
-  const role = req.session?.role;
-  const userId = req.session?.userId;
+  const role = req.user?.role;
+  const userId = req.user?.userId;
 
   if (role !== 'trial' || !userId) return next();
 
@@ -15,10 +15,7 @@ export async function trialLimitsMiddleware(req, res, next) {
       return res.status(403).json({ error: 'Cuenta desactivada' });
     }
     if (user.trial_expires_at && new Date(user.trial_expires_at) < new Date()) {
-      return res.status(403).json({
-        error: 'Tu período de prueba ha expirado',
-        code: 'TRIAL_EXPIRED'
-      });
+      return res.status(403).json({ error: 'Tu período de prueba ha expirado', code: 'TRIAL_EXPIRED' });
     }
     if (user.max_calls !== null && user.calls_used >= user.max_calls) {
       return res.status(403).json({
@@ -30,7 +27,7 @@ export async function trialLimitsMiddleware(req, res, next) {
     next();
   } catch (error) {
     console.error('Trial limits check failed:', error);
-    next(); // fail open so legitimate errors don't block master
+    next();
   }
 }
 

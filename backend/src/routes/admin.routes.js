@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Middleware: only master users
 function masterOnly(req, res, next) {
-  if (req.session?.role !== 'master') {
+  if (req.user?.role !== 'master') {
     return res.status(403).json({ error: 'Solo la cuenta maestra puede acceder aquí' });
   }
   next();

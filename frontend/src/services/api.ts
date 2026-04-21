@@ -7,6 +7,7 @@ const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000');
 class ApiClient {
   private client: AxiosInstance;
   private tenantId: string | null = null;
+  private token: string | null = null;
 
   constructor() {
     this.client = axios.create({
@@ -17,8 +18,11 @@ class ApiClient {
       },
     });
 
-    // Add request interceptor to inject tenant ID
+    // Inject JWT and tenant ID on every request
     this.client.interceptors.request.use((config) => {
+      if (this.token) {
+        config.headers['Authorization'] = `Bearer ${this.token}`;
+      }
       if (this.tenantId) {
         config.headers['X-Tenant-ID'] = this.tenantId;
       }
@@ -42,13 +46,18 @@ class ApiClient {
     this.tenantId = tenantId;
   }
 
-  getTenantId() {
-    return this.tenantId;
+  setToken(token: string) {
+    this.token = token;
   }
 
-  clearTenantId() {
+  clearAuth() {
+    this.token = null;
     this.tenantId = null;
   }
+
+  // Keep for backward compat
+  getTenantId() { return this.tenantId; }
+  clearTenantId() { this.tenantId = null; }
 
   private handleError(error: unknown): ApiError {
     if (axios.isAxiosError(error)) {
