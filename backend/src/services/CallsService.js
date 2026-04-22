@@ -98,6 +98,28 @@ class CallsService {
       include: [Operator]
     });
   }
+
+  async markCallEnded(callSid) {
+    const record = await CallRecord.findOne({ where: { twilio_call_sid: callSid } });
+    if (!record) return;
+    record.status = 'completed';
+    record.ended_at = new Date();
+    return record.save();
+  }
+
+  async cleanupStaleCalls() {
+    const cutoff = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago
+    const [count] = await CallRecord.update(
+      { status: 'failed', ended_at: new Date() },
+      {
+        where: {
+          status: ['initiated', 'ringing'],
+          createdAt: { [Op.lt]: cutoff }
+        }
+      }
+    );
+    return count;
+  }
 }
 
 export default new CallsService();

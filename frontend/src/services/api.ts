@@ -174,6 +174,15 @@ class ApiClient {
     }
   }
 
+  async endCall(callSid: string) {
+    try {
+      const response = await this.client.post(`/calls/${callSid}/end`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   // Operators endpoints
   async getOperators() {
     try {

@@ -1,6 +1,9 @@
 import { getTwilioClientByTenant } from '../config/twilio.js';
 import { Tenant, Operator, OutboundNumber } from '../models/index.js';
 
+const CALLER_ID = '+584242987181';
+const SIP_TRUNK = 'romaia.pstn.twilio.com';
+
 class TwilioService {
   // Round-robin index shared in memory (resets on restart — fine for MVP)
   #poolIndex = 0;
@@ -15,15 +18,17 @@ class TwilioService {
       throw new Error('Tenant or operator not found');
     }
 
-    const outboundNumber = await this.#pickOutboundNumber(tenantId);
     const client = getTwilioClientByTenant(tenant);
 
+    // Route through SIP trunk for PSTN termination
+    const sipTo = `sip:${toNumber}@${SIP_TRUNK}`;
+
     const call = await client.calls.create({
-      to: toNumber,
-      from: outboundNumber.phone_number,
+      to: sipTo,
+      from: CALLER_ID,
       url: `${process.env.BACKEND_URL}/api/webhooks/twiml`,
       statusCallback: `${process.env.BACKEND_URL}/api/webhooks/twilio`,
-      statusCallbackEvent: ['answered', 'completed'],
+      statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
       record: true,
       recordingChannels: 'mono'
     });
@@ -31,24 +36,19 @@ class TwilioService {
     return {
       callSid: call.sid,
       from: call.from,
-      to: call.to,
+      to: toNumber,
       status: call.status
     };
   }
 
-  async #pickOutboundNumber(tenantId) {
-    const numbers = await OutboundNumber.findAll({
-      where: { tenant_id: tenantId, is_active: true },
-      order: [['slot', 'ASC']]
-    });
-
-    if (!numbers.length) {
-      throw new Error('No active outbound numbers configured. Add a number in Settings > Phone Numbers.');
+  async endCall(tenantId, callSid) {
+    const tenant = await Tenant.findByPk(tenantId);
+    const client = getTwilioClientByTenant(tenant);
+    try {
+      await client.calls(callSid).update({ status: 'canceled' });
+    } catch {
+      await client.calls(callSid).update({ status: 'completed' });
     }
-
-    const picked = numbers[this.#poolIndex % numbers.length];
-    this.#poolIndex = (this.#poolIndex + 1) % numbers.length;
-    return picked;
   }
 
   async getRecording(tenantId, recordingSid) {

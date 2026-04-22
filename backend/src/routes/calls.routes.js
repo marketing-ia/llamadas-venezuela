@@ -63,6 +63,33 @@ router.get('/logs', async (req, res) => {
   }
 });
 
+// POST /api/calls/:callSid/end
+router.post('/:callSid/end', async (req, res) => {
+  try {
+    const { callSid } = req.params;
+    const tenantId = req.tenantId;
+
+    await TwilioService.endCall(tenantId, callSid);
+    await CallsService.markCallEnded(callSid);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error ending call:', error);
+    res.status(500).json({ error: 'Failed to end call' });
+  }
+});
+
+// POST /api/calls/cleanup-stale — mark calls stuck >1h as failed
+router.post('/cleanup-stale', async (req, res) => {
+  try {
+    const count = await CallsService.cleanupStaleCalls();
+    res.json({ cleaned: count });
+  } catch (error) {
+    console.error('Error cleaning stale calls:', error);
+    res.status(500).json({ error: 'Cleanup failed' });
+  }
+});
+
 // GET /api/calls/:id
 router.get('/:id', async (req, res) => {
   try {

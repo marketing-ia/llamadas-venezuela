@@ -93,11 +93,20 @@ export function Operators() {
     e.preventDefault();
     if (!callingOperator || !toNumber.trim()) return;
     setCallStatus('calling');
+
+    // 20-second client-side timeout so the button never hangs
+    const timeoutId = setTimeout(() => {
+      setCallStatus('error');
+      setCallMessage('Tiempo agotado. Verifica la conexión e intenta de nuevo.');
+    }, 20000);
+
     try {
       const result = await apiClient.initiateCall(callingOperator.id, toNumber.trim());
+      clearTimeout(timeoutId);
       setCallStatus('success');
       setCallMessage(`Llamada iniciada: ${result.callSid}`);
     } catch (err: any) {
+      clearTimeout(timeoutId);
       setCallStatus('error');
       setCallMessage(err.error || 'Error al iniciar la llamada');
     }
@@ -302,8 +311,7 @@ export function Operators() {
                   <button
                     type="button"
                     onClick={closeCallModal}
-                    disabled={callStatus === 'calling'}
-                    className="bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-slate-300 py-2 px-4 rounded transition-colors"
+                    className="bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 px-4 rounded transition-colors"
                   >
                     Cancelar
                   </button>
