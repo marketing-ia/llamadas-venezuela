@@ -7,6 +7,18 @@ import { trialLimitsMiddleware, incrementTrialCalls } from '../middleware/trialL
 
 const router = express.Router();
 
+// GET /api/calls/voice-token — Twilio Voice SDK access token for browser calling
+router.get('/voice-token', async (req, res) => {
+  try {
+    const identity = req.user?.email?.replace(/[^a-zA-Z0-9_-]/g, '_') || 'operator';
+    const result = await TwilioService.generateVoiceToken(req.tenantId, identity);
+    res.json(result);
+  } catch (error) {
+    console.error('Error generating voice token:', error);
+    res.status(500).json({ error: 'Failed to generate voice token' });
+  }
+});
+
 // POST /api/calls/initiate
 router.post('/initiate', operatorCallLimiter, trialLimitsMiddleware, async (req, res) => {
   try {

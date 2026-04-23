@@ -3,6 +3,7 @@ import { Layout } from '../components/Layout';
 import { apiClient } from '../services/api';
 import { Operator } from '../types';
 import { useStore } from '../store';
+import { useVoiceContext } from '../context/VoiceDeviceContext';
 
 export function Operators() {
   const [operators, setOperators] = useState<Operator[]>([]);
@@ -19,7 +20,9 @@ export function Operators() {
   const [toNumber, setToNumber] = useState('');
   const [callStatus, setCallStatus] = useState<'idle' | 'calling' | 'success' | 'error'>('idle');
   const [callMessage, setCallMessage] = useState('');
+  const [useVoice, setUseVoice] = useState(true);
   const { setError: setStoreError } = useStore();
+  const { deviceState, startCall, activeCall, hangUp } = useVoiceContext();
 
   useEffect(() => {
     fetchOperators();
@@ -101,14 +104,23 @@ export function Operators() {
     }, 20000);
 
     try {
-      const result = await apiClient.initiateCall(callingOperator.id, toNumber.trim());
-      clearTimeout(timeoutId);
-      setCallStatus('success');
-      setCallMessage(`Llamada iniciada: ${result.callSid}`);
+      if (useVoice && deviceState === 'registered') {
+        // Browser audio call via Voice SDK
+        await startCall(toNumber.trim());
+        clearTimeout(timeoutId);
+        setCallStatus('success');
+        setCallMessage('Llamada activa — escucha el audio en tu dispositivo');
+      } else {
+        // Fallback: backend-initiated call (no browser audio)
+        const result = await apiClient.initiateCall(callingOperator.id, toNumber.trim());
+        clearTimeout(timeoutId);
+        setCallStatus('success');
+        setCallMessage(`Llamada iniciada: ${result.callSid}`);
+      }
     } catch (err: any) {
       clearTimeout(timeoutId);
       setCallStatus('error');
-      setCallMessage(err.error || 'Error al iniciar la llamada');
+      setCallMessage(err.error || err.message || 'Error al iniciar la llamada');
     }
   };
 
@@ -269,6 +281,14 @@ export function Operators() {
                 <div className="p-3 bg-green-900/40 border border-green-600 rounded text-green-400 text-sm break-all">
                   {callMessage}
                 </div>
+                {activeCall && (
+                  <button
+                    onClick={() => { hangUp(); closeCallModal(); }}
+                    className="w-full bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded transition-colors"
+                  >
+                    Colgar
+                  </button>
+                )}
                 <button
                   onClick={closeCallModal}
                   className="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 px-4 rounded transition-colors"
@@ -278,6 +298,22 @@ export function Operators() {
               </div>
             ) : (
               <form onSubmit={handleCall} className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-slate-700/50 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => setUseVoice(true)}
+                    className={`flex-1 text-xs font-medium py-1.5 rounded transition-colors ${useVoice ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    Audio en App {deviceState === 'registered' ? '🟢' : '🔴'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUseVoice(false)}
+                    className={`flex-1 text-xs font-medium py-1.5 rounded transition-colors ${!useVoice ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    Solo iniciar
+                  </button>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">
                     Numero a llamar

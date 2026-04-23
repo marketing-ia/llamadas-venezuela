@@ -183,6 +183,15 @@ class ApiClient {
     }
   }
 
+  async getVoiceToken(): Promise<{ token: string; identity: string }> {
+    try {
+      const response = await this.client.get('/calls/voice-token');
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   // Operators endpoints
   async getOperators() {
     try {

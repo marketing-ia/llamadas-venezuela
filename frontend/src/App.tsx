@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from './store';
 import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { VoiceDeviceProvider } from './context/VoiceDeviceContext';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { CallLogs } from './pages/CallLogs';
@@ -21,6 +22,7 @@ function App() {
   }, []);
 
   return (
+    <VoiceDeviceProvider>
     <BrowserRouter>
       {isLoading && (
         <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
@@ -83,6 +85,7 @@ function App() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
+    </VoiceDeviceProvider>
   );
 }
 

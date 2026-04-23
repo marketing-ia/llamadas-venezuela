@@ -1,5 +1,9 @@
+import twilio from 'twilio';
 import { getTwilioClientByTenant } from '../config/twilio.js';
 import { Tenant, Operator, OutboundNumber } from '../models/index.js';
+
+const { AccessToken } = twilio.jwt;
+const { VoiceGrant } = AccessToken;
 
 const CALLER_ID = '+584242987181';
 const SIP_TRUNK = 'romaia.pstn.twilio.com';
@@ -49,6 +53,58 @@ class TwilioService {
     } catch {
       await client.calls(callSid).update({ status: 'completed' });
     }
+  }
+
+  async setupVoiceInfrastructure(tenant) {
+    const client = getTwilioClientByTenant(tenant);
+
+    // Create API Key if missing
+    if (!tenant.twilio_api_key_sid || !tenant.twilio_api_key_secret) {
+      const key = await client.newKeys.create({ friendlyName: 'Llamadas Venezuela Voice' });
+      tenant.twilio_api_key_sid = key.sid;
+      tenant.twilio_api_key_secret = key.secret;
+      await tenant.save();
+      console.log('Created Twilio API Key:', key.sid);
+    }
+
+    // Create TwiML App if missing
+    if (!tenant.twiml_app_sid) {
+      const voiceUrl = `${process.env.BACKEND_URL}/api/webhooks/twiml/app`;
+      const app = await client.applications.create({
+        friendlyName: 'Llamadas Venezuela Voice App',
+        voiceUrl,
+        voiceMethod: 'POST',
+      });
+      tenant.twiml_app_sid = app.sid;
+      await tenant.save();
+      console.log('Created TwiML App:', app.sid);
+    } else {
+      // Keep Voice URL updated in case BACKEND_URL changed
+      const voiceUrl = `${process.env.BACKEND_URL}/api/webhooks/twiml/app`;
+      await client.applications(tenant.twiml_app_sid).update({ voiceUrl, voiceMethod: 'POST' });
+    }
+  }
+
+  async generateVoiceToken(tenantId, identity) {
+    const tenant = await Tenant.findByPk(tenantId);
+    if (!tenant.twilio_api_key_sid || !tenant.twiml_app_sid) {
+      await this.setupVoiceInfrastructure(tenant);
+      await tenant.reload();
+    }
+
+    const grant = new VoiceGrant({
+      outgoingApplicationSid: tenant.twiml_app_sid,
+      incomingAllow: true,
+    });
+
+    const token = new AccessToken(
+      tenant.twilio_account_sid,
+      tenant.twilio_api_key_sid,
+      tenant.twilio_api_key_secret,
+      { identity, ttl: 3600 }
+    );
+    token.addGrant(grant);
+    return { token: token.toJwt(), identity };
   }
 
   async getRecording(tenantId, recordingSid) {

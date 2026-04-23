@@ -5,6 +5,7 @@ import app from './src/app.js';
 import { initializeDatabase } from './src/config/database.js';
 import { Tenant, OutboundNumber, User } from './src/models/index.js';
 import CallsService from './src/services/CallsService.js';
+import TwilioService from './src/services/TwilioService.js';
 
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -16,6 +17,15 @@ async function startServer() {
 
     const cleaned = await CallsService.cleanupStaleCalls();
     if (cleaned > 0) console.log(`Cleaned up ${cleaned} stale call(s)`);
+
+    // Setup Twilio Voice infrastructure (API Key + TwiML App)
+    try {
+      const { Tenant: TenantModel } = await import('./src/models/index.js');
+      const tenant = await TenantModel.findByPk('00000000-0000-0000-0000-000000000001');
+      if (tenant) await TwilioService.setupVoiceInfrastructure(tenant);
+    } catch (e) {
+      console.warn('Voice infrastructure setup failed (non-fatal):', e.message);
+    }
 
     app.listen(PORT, () => {
       console.log(`Server running in ${NODE_ENV} mode on port ${PORT}`);

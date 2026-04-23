@@ -15,6 +15,8 @@ import numbersRoutes from './routes/numbers.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import twilioWebhook from './webhooks/twilio.webhook.js';
 import twimlWebhook from './webhooks/twiml.webhook.js';
+import twimlAppWebhook from './webhooks/twiml-app.webhook.js';
+import twimlInboundWebhook from './webhooks/twiml-inbound.webhook.js';
 
 dotenv.config();
 
@@ -70,6 +72,8 @@ app.get('/health', (req, res) => {
 // Unauthenticated routes (no tenancy middleware)
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks/twilio', twilioWebhook);
+app.use('/api/webhooks/twiml/app', twimlAppWebhook);
+app.use('/api/webhooks/twiml/inbound', twimlInboundWebhook);
 app.use('/api/webhooks/twiml', twimlWebhook);
 
 // Auth + tenancy middleware for protected routes
