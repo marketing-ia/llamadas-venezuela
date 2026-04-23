@@ -3,6 +3,7 @@ import { Layout } from '../components/Layout';
 import { ActiveCalls } from '../components/ActiveCalls';
 import { apiClient } from '../services/api';
 import { AnalyticsSummary, Operator } from '../types';
+import { useVoiceContext } from '../context/VoiceDeviceContext';
 
 function todayRange() {
   const d = new Date().toISOString().slice(0, 10);
@@ -21,6 +22,8 @@ export function Dashboard() {
   const [monthSummary, setMonthSummary] = useState<AnalyticsSummary | null>(null);
   const [operators, setOperators] = useState<Operator[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { deviceState, activeCall, startCall, hangUp } = useVoiceContext();
 
   const [operatorId, setOperatorId] = useState('');
   const [toNumber, setToNumber] = useState('');
@@ -53,14 +56,18 @@ export function Dashboard() {
 
   const handleInitiateCall = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (deviceState !== 'registered') {
+      setCallMsg({ type: 'error', text: 'Dispositivo de voz no conectado. Espera unos segundos e intenta de nuevo.' });
+      return;
+    }
     setCalling(true);
     setCallMsg(null);
     try {
-      const result = await apiClient.initiateCall(operatorId, toNumber);
-      setCallMsg({ type: 'success', text: `Call initiated — SID: ${result.callSid}` });
+      await startCall(toNumber);
+      setCallMsg({ type: 'success', text: 'Llamada iniciada — audio activo en el navegador' });
       setToNumber('');
     } catch (err: any) {
-      setCallMsg({ type: 'error', text: err.error ?? 'Failed to initiate call' });
+      setCallMsg({ type: 'error', text: err.message ?? 'Error al iniciar la llamada' });
     } finally {
       setCalling(false);
     }
@@ -104,37 +111,64 @@ export function Dashboard() {
 
         {/* Make a Call */}
         <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
-          <h3 className="text-xl font-semibold text-white mb-4">Make a Call</h3>
-          <form onSubmit={handleInitiateCall} className="flex flex-col sm:flex-row gap-3">
-            <select
-              value={operatorId}
-              onChange={(e) => setOperatorId(e.target.value)}
-              required
-              className="flex-1 bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Select Operator…</option>
-              {operators.map((op) => (
-                <option key={op.id} value={op.id}>
-                  {op.name} ({op.twilio_number})
-                </option>
-              ))}
-            </select>
-            <input
-              type="tel"
-              value={toNumber}
-              onChange={(e) => setToNumber(e.target.value)}
-              placeholder="+1 (555) 000-0000"
-              required
-              className="flex-1 bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 placeholder-gray-500"
-            />
-            <button
-              type="submit"
-              disabled={calling || !operatorId || !toNumber}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
-            >
-              {calling ? 'Calling…' : 'Initiate Call'}
-            </button>
-          </form>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-white">Hacer Llamada</h3>
+            <span className={`text-xs px-2 py-0.5 rounded-full ${
+              deviceState === 'registered' ? 'bg-green-900/60 text-green-400' :
+              deviceState === 'registering' ? 'bg-yellow-900/60 text-yellow-400' :
+              'bg-red-900/60 text-red-400'
+            }`}>
+              {deviceState === 'registered' ? 'Audio listo' :
+               deviceState === 'registering' ? 'Conectando...' : 'Sin audio'}
+            </span>
+          </div>
+
+          {activeCall ? (
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse" />
+                <span className="text-green-300 font-medium">Llamada en curso</span>
+              </div>
+              <button
+                onClick={hangUp}
+                className="px-5 py-2 bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg transition-colors"
+              >
+                Colgar
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleInitiateCall} className="flex flex-col sm:flex-row gap-3">
+              <select
+                value={operatorId}
+                onChange={(e) => setOperatorId(e.target.value)}
+                required
+                className="flex-1 bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+              >
+                <option value="">Seleccionar Operador…</option>
+                {operators.map((op) => (
+                  <option key={op.id} value={op.id}>
+                    {op.name} ({op.twilio_number})
+                  </option>
+                ))}
+              </select>
+              <input
+                type="tel"
+                value={toNumber}
+                onChange={(e) => setToNumber(e.target.value)}
+                placeholder="+1 (555) 000-0000"
+                required
+                className="flex-1 bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 placeholder-gray-500"
+              />
+              <button
+                type="submit"
+                disabled={calling || !operatorId || !toNumber || deviceState !== 'registered'}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+              >
+                {calling ? 'Llamando…' : 'Llamar'}
+              </button>
+            </form>
+          )}
+
           {callMsg && (
             <p className={`mt-3 text-sm ${callMsg.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
               {callMsg.text}

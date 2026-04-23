@@ -206,7 +206,7 @@ export function CallLogs() {
                         {formatDuration(call.duration_seconds)}
                       </td>
                       <td className="px-6 py-4 text-gray-300">
-                        ${call.total_cost.toFixed(2)}
+                        ${Number(call.total_cost).toFixed(2)}
                       </td>
                       <td className="px-6 py-4">
                         <span
