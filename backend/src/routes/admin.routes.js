@@ -1,5 +1,5 @@
 import express from 'express';
-import { User } from '../models/index.js';
+import { User, CallRecord } from '../models/index.js';
 import { hashPassword } from '../utils/password.js';
 import { sendTrialWelcome } from '../services/EmailService.js';
 
@@ -112,6 +112,16 @@ router.delete('/trials/:id', masterOnly, async (req, res) => {
     res.json({ message: 'Cuenta eliminada' });
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar cuenta' });
+  }
+});
+
+// DELETE /api/admin/calls — clear all call logs for tenant
+router.delete('/calls', masterOnly, async (req, res) => {
+  try {
+    const count = await CallRecord.destroy({ where: { tenant_id: req.tenantId } });
+    res.json({ message: `${count} registros eliminados` });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al limpiar los registros' });
   }
 });
 
