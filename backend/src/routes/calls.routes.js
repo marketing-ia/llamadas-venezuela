@@ -15,7 +15,7 @@ router.get('/voice-token', async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error('Error generating voice token:', error);
-    res.status(500).json({ error: 'Failed to generate voice token' });
+    res.status(500).json({ error: error.message || 'Failed to generate voice token' });
   }
 });
 
@@ -50,7 +50,7 @@ router.post('/initiate', operatorCallLimiter, trialLimitsMiddleware, async (req,
     res.json(call);
   } catch (error) {
     console.error('Error initiating call:', error);
-    res.status(500).json({ error: 'Failed to initiate call' });
+    res.status(500).json({ error: error.message || 'Failed to initiate call' });
   }
 });
 
