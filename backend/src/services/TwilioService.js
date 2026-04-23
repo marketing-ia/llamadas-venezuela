@@ -5,9 +5,6 @@ import { Tenant, Operator, OutboundNumber } from '../models/index.js';
 const { AccessToken } = twilio.jwt;
 const { VoiceGrant } = AccessToken;
 
-const CALLER_ID = '+584242987181';
-const SIP_TRUNK = 'romaia.pstn.twilio.com';
-
 class TwilioService {
   // Round-robin index shared in memory (resets on restart — fine for MVP)
   #poolIndex = 0;
@@ -24,12 +21,9 @@ class TwilioService {
 
     const client = getTwilioClientByTenant(tenant);
 
-    // Route through SIP trunk for PSTN termination
-    const sipTo = `sip:${toNumber}@${SIP_TRUNK}`;
-
     const call = await client.calls.create({
-      to: sipTo,
-      from: CALLER_ID,
+      to: toNumber,
+      from: operator.twilio_number,
       url: `${process.env.BACKEND_URL}/api/webhooks/twiml`,
       statusCallback: `${process.env.BACKEND_URL}/api/webhooks/twilio`,
       statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
