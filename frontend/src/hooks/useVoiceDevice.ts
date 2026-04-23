@@ -44,7 +44,9 @@ export function useVoiceDevice() {
       deviceRef.current = device;
       await device.register();
     } catch (err: any) {
-      setError(err.message ?? 'Error al registrar el dispositivo de voz');
+      deviceRef.current?.destroy();
+      deviceRef.current = null;
+      setError(err.error ?? err.message ?? 'Error al registrar el dispositivo de voz');
       setDeviceState('error');
     }
   }, []);

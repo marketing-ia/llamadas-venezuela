@@ -15,7 +15,7 @@ export function Layout({ children, currentPage }: LayoutProps) {
   const { user } = useStore();
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const { deviceState, activeCall, incoming, register, hangUp, acceptIncoming, rejectIncoming } = useVoiceContext();
+  const { deviceState, error: voiceError, activeCall, incoming, register, hangUp, acceptIncoming, rejectIncoming } = useVoiceContext();
 
   // Register the voice device as soon as the user is in the app
   useEffect(() => {
@@ -78,16 +78,26 @@ export function Layout({ children, currentPage }: LayoutProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <h1 className="text-xl font-bold text-white">Llamadas Venezuela</h1>
+              <div className="flex items-center gap-2">
               <span className={`text-xs px-2 py-0.5 rounded-full ${
                 deviceState === 'registered' ? 'bg-green-900/60 text-green-400' :
                 deviceState === 'registering' ? 'bg-yellow-900/60 text-yellow-400' :
                 deviceState === 'error' ? 'bg-red-900/60 text-red-400' :
                 'bg-slate-700 text-slate-400'
-              }`}>
+              }`} title={voiceError ?? undefined}>
                 {deviceState === 'registered' ? 'Listo para llamadas' :
                  deviceState === 'registering' ? 'Conectando...' :
-                 deviceState === 'error' ? 'Error de voz' : 'Sin audio'}
+                 deviceState === 'error' ? `Error de voz${voiceError ? `: ${voiceError}` : ''}` : 'Sin audio'}
               </span>
+              {deviceState === 'error' && (
+                <button
+                  onClick={() => register().catch(() => {})}
+                  className="text-xs text-blue-400 hover:text-blue-300 underline"
+                >
+                  Reintentar
+                </button>
+              )}
+            </div>
             </div>
             <div className="relative">
               <button
