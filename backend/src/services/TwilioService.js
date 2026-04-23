@@ -5,7 +5,7 @@ import { Tenant, Operator, OutboundNumber } from '../models/index.js';
 const { AccessToken } = twilio.jwt;
 const { VoiceGrant } = AccessToken;
 
-const CALLER_ID = '+584242987181';
+const CALLER_ID = process.env.CALLER_ID || '+584123909792';
 
 class TwilioService {
   // Round-robin index shared in memory (resets on restart — fine for MVP)
