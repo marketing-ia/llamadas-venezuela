@@ -1,24 +1,13 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-function createTransport() {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return null;
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-  return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: parseInt(SMTP_PORT || '587'),
-    secure: parseInt(SMTP_PORT || '587') === 465,
-    auth: { user: SMTP_USER, pass: SMTP_PASS },
-  });
-}
-
-const FROM = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@llamadas.app';
+const FROM = process.env.SMTP_FROM || 'Llamadas Venezuela <onboarding@resend.dev>';
 const APP_URL = process.env.FRONTEND_URL || 'https://llamadas-venezuela.vercel.app';
 
 export async function sendTrialWelcome({ name, email, password, trialDays, maxCalls }) {
-  const transport = createTransport();
-  if (!transport) {
-    console.log(`[Email] SMTP not configured — trial credentials for ${email}: password=${password}`);
+  if (!process.env.RESEND_API_KEY) {
+    console.log(`[Email] RESEND_API_KEY not set — trial credentials for ${email}: password=${password}`);
     return;
   }
 
@@ -26,8 +15,8 @@ export async function sendTrialWelcome({ name, email, password, trialDays, maxCa
   expiryDate.setDate(expiryDate.getDate() + trialDays);
   const expiryStr = expiryDate.toLocaleDateString('es-VE', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  await transport.sendMail({
-    from: `Llamadas Venezuela <${FROM}>`,
+  const { error } = await resend.emails.send({
+    from: FROM,
     to: email,
     subject: 'Tu acceso de prueba a Llamadas Venezuela',
     html: `
@@ -58,6 +47,10 @@ export async function sendTrialWelcome({ name, email, password, trialDays, maxCa
       </div>
     `,
   });
+
+  if (error) {
+    throw new Error(error.message);
+  }
 
   console.log(`[Email] Trial welcome sent to ${email}`);
 }
