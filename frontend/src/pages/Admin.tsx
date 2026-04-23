@@ -18,7 +18,7 @@ export function Admin() {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', password: '', days: '3', max_calls: '10' });
   const [formError, setFormError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [createdCreds, setCreatedCreds] = useState<{ email: string; password: string } | null>(null);
 
   useEffect(() => {
     if (user?.role !== 'master') { navigate('/dashboard'); return; }
@@ -37,7 +37,7 @@ export function Admin() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
-    setSuccess(null);
+    setCreatedCreds(null);
     if (!form.name || !form.email || !form.password) {
       setFormError('Todos los campos son obligatorios');
       return;
@@ -51,7 +51,7 @@ export function Admin() {
         days: parseInt(form.days),
         max_calls: parseInt(form.max_calls)
       });
-      setSuccess(`Cuenta de prueba creada para ${form.email}`);
+      setCreatedCreds({ email: form.email, password: form.password });
       setForm({ name: '', email: '', password: '', days: '3', max_calls: '10' });
       fetchTrials();
     } catch (err: any) {
@@ -59,6 +59,10 @@ export function Admin() {
     } finally {
       setCreating(false);
     }
+  }
+
+  function copyText(text: string) {
+    navigator.clipboard.writeText(text).catch(() => {});
   }
 
   async function toggleActive(trial: TrialAccount) {
@@ -95,7 +99,29 @@ export function Admin() {
         <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
           <h2 className="text-lg font-semibold text-white mb-4">Crear Cuenta de Prueba</h2>
           {formError && <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded text-red-300 text-sm">{formError}</div>}
-          {success && <div className="mb-4 p-3 bg-green-900/50 border border-green-500 rounded text-green-300 text-sm">{success}</div>}
+          {createdCreds && (
+            <div className="mb-4 p-4 bg-green-900/30 border border-green-600 rounded-lg space-y-2">
+              <p className="text-green-300 text-sm font-semibold">✅ Cuenta creada — credenciales para compartir:</p>
+              <div className="grid grid-cols-1 gap-2 text-sm">
+                <div className="flex items-center justify-between bg-slate-800 rounded px-3 py-2">
+                  <span className="text-slate-400 mr-2">URL:</span>
+                  <span className="text-white flex-1 truncate">https://llamadas-venezuela.vercel.app</span>
+                  <button onClick={() => copyText('https://llamadas-venezuela.vercel.app')} className="ml-2 text-xs text-blue-400 hover:text-blue-300 whitespace-nowrap">Copiar</button>
+                </div>
+                <div className="flex items-center justify-between bg-slate-800 rounded px-3 py-2">
+                  <span className="text-slate-400 mr-2">Email:</span>
+                  <span className="text-white flex-1">{createdCreds.email}</span>
+                  <button onClick={() => copyText(createdCreds.email)} className="ml-2 text-xs text-blue-400 hover:text-blue-300">Copiar</button>
+                </div>
+                <div className="flex items-center justify-between bg-slate-800 rounded px-3 py-2">
+                  <span className="text-slate-400 mr-2">Contraseña:</span>
+                  <span className="text-white flex-1 font-mono">{createdCreds.password}</span>
+                  <button onClick={() => copyText(createdCreds.password)} className="ml-2 text-xs text-blue-400 hover:text-blue-300">Copiar</button>
+                </div>
+              </div>
+              <p className="text-slate-400 text-xs">Se envió un email de bienvenida si el servidor SMTP está configurado.</p>
+            </div>
+          )}
 
           <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

@@ -1,6 +1,7 @@
 import express from 'express';
 import { User } from '../models/index.js';
 import { hashPassword } from '../utils/password.js';
+import { sendTrialWelcome } from '../services/EmailService.js';
 
 const router = express.Router();
 
@@ -55,6 +56,15 @@ router.post('/trials', masterOnly, async (req, res) => {
       calls_used: 0,
       is_active: true
     });
+
+    // Send welcome email (non-blocking — failure doesn't abort the request)
+    sendTrialWelcome({
+      name,
+      email: user.email,
+      password,
+      trialDays: parseInt(days),
+      maxCalls: parseInt(max_calls),
+    }).catch(err => console.error('[Email] Failed to send trial welcome:', err.message));
 
     res.status(201).json({
       id: user.id,
