@@ -2,11 +2,12 @@ import express from 'express';
 import { User } from '../models/index.js';
 import { verifyPassword } from '../utils/password.js';
 import { signToken } from '../middleware/auth.js';
+import { loginLimiter } from '../middleware/rateLimit.js';
 
 const router = express.Router();
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 

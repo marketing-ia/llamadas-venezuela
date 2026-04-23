@@ -63,8 +63,7 @@ export async function initializeDatabase(Tenant, OutboundNumber, User) {
       max_calls: 10,
       calls_used: 0
     });
-    console.log('Seed OK — master: hola@marketingkoraia.com / KoraIA2026!');
-    console.log('Seed OK — trial: prueba@llamadas.app / prueba01');
+    console.log('Seed OK — master + trial users created');
   }
   // Ensure master user exists even on existing tenants (migration)
   const { hashPassword } = await import('../utils/password.js');
@@ -80,7 +79,7 @@ export async function initializeDatabase(Tenant, OutboundNumber, User) {
       trial_expires_at: null,
       max_calls: null
     });
-    console.log('Master user created: hola@marketingkoraia.com / KoraIA2026!');
+    console.log('Master user created');
   }
   const trialExists = await User.findOne({ where: { email: 'prueba@llamadas.app' } });
   if (!trialExists) {
@@ -97,7 +96,7 @@ export async function initializeDatabase(Tenant, OutboundNumber, User) {
       max_calls: 10,
       calls_used: 0
     });
-    console.log('Trial demo user created: prueba@llamadas.app / prueba01');
+    console.log('Trial demo user created');
   }
 }
 

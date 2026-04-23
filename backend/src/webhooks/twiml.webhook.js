@@ -1,12 +1,10 @@
 import express from 'express';
 import { CallRecord, Operator } from '../models/index.js';
+import { validateTwilioSignature } from '../middleware/twilioSignature.js';
 
 const router = express.Router();
 
-// POST /api/webhooks/twiml - Return TwiML instructions for an outbound call
-// Twilio calls this URL when the called party answers.
-// We look up which operator initiated the call and bridge to their SIP URI.
-router.post('/', async (req, res) => {
+router.post('/', validateTwilioSignature, async (req, res) => {
   const { CallSid } = req.body;
 
   res.set('Content-Type', 'text/xml');

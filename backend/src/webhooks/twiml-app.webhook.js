@@ -1,12 +1,10 @@
 import express from 'express';
+import { validateTwilioSignature } from '../middleware/twilioSignature.js';
 
 const router = express.Router();
 const CALLER_ID = '+584242987181';
 
-// POST /api/webhooks/twiml/app
-// Called by Twilio Voice SDK when the browser client initiates a call.
-// `To` = destination number entered by the operator.
-router.post('/', (req, res) => {
+router.post('/', validateTwilioSignature, (req, res) => {
   res.set('Content-Type', 'text/xml');
 
   const to = req.body.To || req.query.To;

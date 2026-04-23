@@ -1,10 +1,10 @@
 import express from 'express';
 import CallsService from '../services/CallsService.js';
+import { validateTwilioSignature } from '../middleware/twilioSignature.js';
 
 const router = express.Router();
 
-// POST /api/webhooks/twilio - Handle Twilio events
-router.post('/', async (req, res) => {
+router.post('/', validateTwilioSignature, async (req, res) => {
   try {
     const { CallSid, CallStatus, RecordingUrl, Duration, Price } = req.body;
 

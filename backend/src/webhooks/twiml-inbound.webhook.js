@@ -1,5 +1,6 @@
 import express from 'express';
 import { Tenant } from '../models/index.js';
+import { validateTwilioSignature } from '../middleware/twilioSignature.js';
 
 const router = express.Router();
 const MASTER_TENANT_ID = '00000000-0000-0000-0000-000000000001';
@@ -7,7 +8,7 @@ const MASTER_TENANT_ID = '00000000-0000-0000-0000-000000000001';
 // POST /api/webhooks/twiml/inbound
 // Called by Twilio when a PSTN call arrives at a Twilio phone number.
 // Routes the call to the browser client (Voice SDK).
-router.post('/', async (req, res) => {
+router.post('/', validateTwilioSignature, async (req, res) => {
   res.set('Content-Type', 'text/xml');
 
   try {
