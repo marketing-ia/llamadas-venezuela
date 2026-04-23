@@ -5,6 +5,8 @@ import { Tenant, Operator, OutboundNumber } from '../models/index.js';
 const { AccessToken } = twilio.jwt;
 const { VoiceGrant } = AccessToken;
 
+const CALLER_ID = '+584242987181';
+
 class TwilioService {
   // Round-robin index shared in memory (resets on restart — fine for MVP)
   #poolIndex = 0;
@@ -23,7 +25,7 @@ class TwilioService {
 
     const call = await client.calls.create({
       to: toNumber,
-      from: operator.twilio_number,
+      from: CALLER_ID,
       url: `${process.env.BACKEND_URL}/api/webhooks/twiml`,
       statusCallback: `${process.env.BACKEND_URL}/api/webhooks/twilio`,
       statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
