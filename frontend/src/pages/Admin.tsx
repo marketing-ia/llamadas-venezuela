@@ -19,6 +19,8 @@ export function Admin() {
   const [form, setForm] = useState({ name: '', email: '', password: '', days: '3', max_calls: '10' });
   const [formError, setFormError] = useState<string | null>(null);
   const [createdCreds, setCreatedCreds] = useState<{ email: string; password: string } | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.role !== 'master') { navigate('/dashboard'); return; }
@@ -80,11 +82,14 @@ export function Admin() {
   }
 
   async function deleteTrial(id: string) {
-    if (!confirm('¿Eliminar esta cuenta de prueba?')) return;
+    setDeleteError(null);
     try {
       await apiClient.deleteTrialAccount(id);
+      setConfirmDelete(null);
       fetchTrials();
-    } catch { /* ignore */ }
+    } catch (err: any) {
+      setDeleteError(err.error || err.message || 'Error al eliminar');
+    }
   }
 
   return (
@@ -187,6 +192,7 @@ export function Admin() {
         </div>
 
         {/* Trial Accounts List */}
+        {deleteError && <div className="p-3 bg-red-900/50 border border-red-500 rounded text-red-300 text-sm">{deleteError}</div>}
         <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
           <div className="p-4 border-b border-slate-700">
             <h2 className="text-lg font-semibold text-white">Cuentas Activas ({trials.length})</h2>
@@ -229,12 +235,19 @@ export function Admin() {
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 items-center">
                             <button onClick={() => extendTrial(t)} className="text-xs text-blue-400 hover:text-blue-300">+3d</button>
                             <button onClick={() => toggleActive(t)} className="text-xs text-yellow-400 hover:text-yellow-300">
                               {t.is_active ? 'Pausar' : 'Activar'}
                             </button>
-                            <button onClick={() => deleteTrial(t.id)} className="text-xs text-red-400 hover:text-red-300">Eliminar</button>
+                            {confirmDelete === t.id ? (
+                              <>
+                                <button onClick={() => deleteTrial(t.id)} className="text-xs text-red-400 hover:text-red-300 font-semibold">¿Confirmar?</button>
+                                <button onClick={() => setConfirmDelete(null)} className="text-xs text-slate-400 hover:text-slate-300">Cancelar</button>
+                              </>
+                            ) : (
+                              <button onClick={() => setConfirmDelete(t.id)} className="text-xs text-red-400 hover:text-red-300">Eliminar</button>
+                            )}
                           </div>
                         </td>
                       </tr>
