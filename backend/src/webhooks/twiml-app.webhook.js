@@ -2,7 +2,6 @@ import express from 'express';
 
 const router = express.Router();
 const CALLER_ID = '+584242987181';
-const SIP_TRUNK = 'romaia.pstn.twilio.com';
 
 // POST /api/webhooks/twiml/app
 // Called by Twilio Voice SDK when the browser client initiates a call.
@@ -17,13 +16,12 @@ router.post('/', (req, res) => {
 <Response><Say language="es-MX">No se especificó destino.</Say></Response>`);
   }
 
-  // Sanitize number — strip spaces, ensure E.164
   const dest = to.replace(/\s/g, '');
 
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Dial callerId="${CALLER_ID}" timeout="30">
-    <Sip>${dest}@${SIP_TRUNK}</Sip>
+    <Number>${dest}</Number>
   </Dial>
 </Response>`);
 });
