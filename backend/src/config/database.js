@@ -37,7 +37,7 @@ export async function initializeDatabase(Tenant, OutboundNumber, User) {
       timezone: 'America/Caracas'
     });
     await OutboundNumber.create({
-      tenant_id: TENANT_ID, phone_number: process.env.CALLER_ID || '+584123909792',
+      tenant_id: TENANT_ID, phone_number: process.env.CALLER_ID || '+584242987181',
       label: 'Principal', slot: 1, is_active: true
     });
     // Seed master + demo trial (imported here to avoid circular dep)

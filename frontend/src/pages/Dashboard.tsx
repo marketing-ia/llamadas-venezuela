@@ -54,16 +54,33 @@ export function Dashboard() {
     return () => clearInterval(id);
   }, [fetchMetrics]);
 
+  function normalizePhone(raw: string): string {
+    const digits = raw.replace(/\D/g, '');
+    // Venezuelan local mobile: 04XX -> +584XX
+    if (/^04\d{9}$/.test(digits)) return '+58' + digits.slice(1);
+    // Venezuelan local landline: 02XX -> +582XX
+    if (/^02\d{9}$/.test(digits)) return '+58' + digits.slice(1);
+    // Already has country code without +
+    if (/^58\d{10}$/.test(digits)) return '+' + digits;
+    // Return as-is if starts with + (E.164) or unknown
+    return raw.trim();
+  }
+
   const handleInitiateCall = async (e: React.FormEvent) => {
     e.preventDefault();
     if (deviceState !== 'registered') {
       setCallMsg({ type: 'error', text: 'Dispositivo de voz no conectado. Espera unos segundos e intenta de nuevo.' });
       return;
     }
+    const normalized = normalizePhone(toNumber);
+    if (!/^\+[1-9]\d{6,14}$/.test(normalized)) {
+      setCallMsg({ type: 'error', text: `Número inválido: "${toNumber}". Usa formato +58XXXXXXXXXX o 04XXXXXXXXX.` });
+      return;
+    }
     setCalling(true);
     setCallMsg(null);
     try {
-      await startCall(toNumber);
+      await startCall(normalized);
       setCallMsg({ type: 'success', text: 'Llamada iniciada — audio activo en el navegador' });
       setToNumber('');
     } catch (err: any) {
@@ -155,7 +172,7 @@ export function Dashboard() {
                 type="tel"
                 value={toNumber}
                 onChange={(e) => setToNumber(e.target.value)}
-                placeholder="+1 (555) 000-0000"
+                placeholder="+584241234567 o 04241234567"
                 required
                 className="flex-1 bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 placeholder-gray-500"
               />
