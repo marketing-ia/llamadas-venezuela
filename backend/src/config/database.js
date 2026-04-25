@@ -98,6 +98,29 @@ export async function initializeDatabase(Tenant, OutboundNumber, User) {
     });
     console.log('Trial demo user created');
   }
+
+  // Update master password if MASTER_PASSWORD env var is set
+  if (process.env.MASTER_PASSWORD) {
+    const master = await User.findOne({ where: { email: 'hola@marketingkoraia.com' } });
+    if (master) {
+      master.password_hash = hashPassword(process.env.MASTER_PASSWORD);
+      await master.save();
+      console.log('[Security] Master password updated from MASTER_PASSWORD env var');
+    }
+  }
+
+  // Re-sync Twilio credentials if ENCRYPTION_KEY changed (decryption would fail)
+  const TENANT_ID = '00000000-0000-0000-0000-000000000001';
+  const tenant = await Tenant.findByPk(TENANT_ID);
+  if (tenant && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_AUTH_TOKEN !== 'placeholder') {
+    try {
+      tenant.twilio_auth_token; // attempt decrypt — throws if key mismatch
+    } catch {
+      console.log('[Security] Encryption key rotation detected — re-syncing Twilio credentials from env');
+      tenant.twilio_auth_token = process.env.TWILIO_AUTH_TOKEN;
+      await tenant.save();
+    }
+  }
 }
 
 export default sequelize;
