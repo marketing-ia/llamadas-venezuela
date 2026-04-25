@@ -11,13 +11,20 @@ export interface IncomingCallInfo {
 
 export function useVoiceDevice() {
   const deviceRef = useRef<Device | null>(null);
+  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [deviceState, setDeviceState] = useState<DeviceState>('unregistered');
   const [activeCall, setActiveCall] = useState<Call | null>(null);
   const [incoming, setIncoming] = useState<IncomingCallInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const scheduleRetry = useCallback(() => {
+    if (retryTimer.current) clearTimeout(retryTimer.current);
+    retryTimer.current = setTimeout(() => setDeviceState('unregistered'), 5000);
+  }, []);
+
   const register = useCallback(async () => {
     if (deviceRef.current) return; // already initialized
+    if (retryTimer.current) { clearTimeout(retryTimer.current); retryTimer.current = null; }
     setDeviceState('registering');
     try {
       const { token } = await apiClient.getVoiceToken();
@@ -31,7 +38,10 @@ export function useVoiceDevice() {
       device.on('unregistered', () => setDeviceState('unregistered'));
       device.on('error', (err: any) => {
         setError(err.message);
+        deviceRef.current?.destroy();
+        deviceRef.current = null;
         setDeviceState('error');
+        scheduleRetry();
       });
 
       device.on('incoming', (call: Call) => {
@@ -48,8 +58,9 @@ export function useVoiceDevice() {
       deviceRef.current = null;
       setError(err.error ?? err.message ?? 'Error al registrar el dispositivo de voz');
       setDeviceState('error');
+      scheduleRetry();
     }
-  }, []);
+  }, [scheduleRetry]);
 
   // Call outbound number via Voice SDK (browser audio)
   const startCall = useCallback(async (toNumber: string): Promise<Call> => {
@@ -98,6 +109,7 @@ export function useVoiceDevice() {
 
   useEffect(() => {
     return () => {
+      if (retryTimer.current) clearTimeout(retryTimer.current);
       deviceRef.current?.destroy();
       deviceRef.current = null;
     };
