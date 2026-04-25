@@ -1,7 +1,8 @@
 import express from 'express';
 import { validateTwilioSignature } from '../middleware/twilioSignature.js';
 import CallsService from '../services/CallsService.js';
-import { Operator } from '../models/index.js';
+import { Operator, Tenant } from '../models/index.js';
+import { getTwilioClientByTenant } from '../config/twilio.js';
 
 const router = express.Router();
 const CALLER_ID = process.env.CALLER_ID || '+584242987181';
@@ -15,13 +16,28 @@ router.post('/status', async (req, res) => {
   res.send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
 
   // Update DB in background after response is sent
-  const { CallSid, DialCallStatus, DialCallDuration, RecordingUrl } = req.body;
+  const { CallSid, DialCallSid, DialCallStatus, DialCallDuration, RecordingUrl } = req.body;
   if (CallSid) {
     const statusMap = { completed: 'completed', busy: 'failed', 'no-answer': 'failed', failed: 'failed', canceled: 'failed' };
     const status = statusMap[DialCallStatus] ?? 'completed';
+
+    // Fetch actual price from Twilio API — not available in the action callback directly
+    let totalCost = null;
+    if (DialCallSid) {
+      try {
+        // Wait briefly for Twilio billing to finalize
+        await new Promise(r => setTimeout(r, 3000));
+        const tenant = await Tenant.findByPk(TENANT_ID);
+        const client = getTwilioClientByTenant(tenant);
+        const call = await client.calls(DialCallSid).fetch();
+        if (call.price) totalCost = Math.abs(parseFloat(call.price));
+      } catch { /* non-fatal — cost stays null */ }
+    }
+
     CallsService.updateCallEvent(CallSid, {
       status,
       duration: DialCallDuration ? parseInt(DialCallDuration) : 0,
+      totalCost,
       recordingUrl: RecordingUrl || null,
     }).catch(() => {});
   }

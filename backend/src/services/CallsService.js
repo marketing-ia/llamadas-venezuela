@@ -34,7 +34,7 @@ class CallsService {
     const {
       status,
       duration,
-      price,
+      totalCost,
       recordingUrl
     } = data;
 
@@ -42,9 +42,8 @@ class CallsService {
     if (duration) {
       callRecord.duration_seconds = duration;
     }
-    if (price) {
-      callRecord.price_per_minute = price;
-      callRecord.total_cost = (duration / 60) * price;
+    if (totalCost != null) {
+      callRecord.total_cost = totalCost;
     }
     if (recordingUrl) {
       callRecord.recording_url = recordingUrl;

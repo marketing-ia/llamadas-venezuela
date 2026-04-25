@@ -12,11 +12,11 @@ router.post('/', validateTwilioSignature, async (req, res) => {
       return res.status(400).json({ error: 'Missing CallSid' });
     }
 
-    // Update call record with event data
+    // Price from Twilio statusCallback is the total charge (negative number), e.g. "-0.0135"
     await CallsService.updateCallEvent(CallSid, {
       status: CallStatus,
       duration: Duration ? parseInt(Duration) : null,
-      price: Price ? parseFloat(Price) : null,
+      totalCost: Price ? Math.abs(parseFloat(Price)) : null,
       recordingUrl: RecordingUrl || null
     });
 
