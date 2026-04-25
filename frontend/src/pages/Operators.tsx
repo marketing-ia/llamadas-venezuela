@@ -106,10 +106,14 @@ export function Operators() {
     try {
       if (useVoice && deviceState === 'registered') {
         // Browser audio call via Voice SDK
-        await startCall(toNumber.trim());
+        const call = await startCall(toNumber.trim());
         clearTimeout(timeoutId);
         setCallStatus('success');
-        setCallMessage('Llamada activa — escucha el audio en tu dispositivo');
+        setCallMessage('Conectando...');
+
+        call.on('ringing', () => setCallMessage('Repicando en destino...'));
+        call.on('accept', () => setCallMessage('Llamada en curso — audio activo'));
+        call.on('disconnect', () => { closeCallModal(); });
       } else {
         // Fallback: backend-initiated call (no browser audio)
         const result = await apiClient.initiateCall(callingOperator.id, toNumber.trim());

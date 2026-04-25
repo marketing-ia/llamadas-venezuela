@@ -8,21 +8,23 @@ const CALLER_ID = process.env.CALLER_ID || '+584242987181';
 const TENANT_ID = '00000000-0000-0000-0000-000000000001';
 
 // Handle Dial action callback (call completion)
-router.post('/status', validateTwilioSignature, async (req, res) => {
+// No signature validation here — a 403 would leave the browser leg stuck open indefinitely
+router.post('/status', async (req, res) => {
   res.set('Content-Type', 'text/xml');
-  const { CallSid, DialCallStatus, DialCallDuration, RecordingUrl } = req.body;
+  // Respond immediately so Twilio can hang up the browser leg
+  res.send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
 
+  // Update DB in background after response is sent
+  const { CallSid, DialCallStatus, DialCallDuration, RecordingUrl } = req.body;
   if (CallSid) {
     const statusMap = { completed: 'completed', busy: 'failed', 'no-answer': 'failed', failed: 'failed', canceled: 'failed' };
     const status = statusMap[DialCallStatus] ?? 'completed';
-    await CallsService.updateCallEvent(CallSid, {
+    CallsService.updateCallEvent(CallSid, {
       status,
       duration: DialCallDuration ? parseInt(DialCallDuration) : 0,
       recordingUrl: RecordingUrl || null,
     }).catch(() => {});
   }
-
-  res.send(`<?xml version="1.0" encoding="UTF-8"?><Response></Response>`);
 });
 
 router.post('/', validateTwilioSignature, async (req, res) => {
@@ -37,21 +39,9 @@ router.post('/', validateTwilioSignature, async (req, res) => {
 
   const dest = to.replace(/\s/g, '');
   const callSid = req.body.CallSid;
-
-  // Log call to DB
-  if (callSid) {
-    const operator = await Operator.findOne({ where: { tenant_id: TENANT_ID } }).catch(() => null);
-    await CallsService.recordCall({
-      tenantId: TENANT_ID,
-      operatorId: operator?.id ?? null,
-      callSid,
-      fromNumber: CALLER_ID,
-      toNumber: dest,
-    }).catch(() => {});
-  }
-
   const baseUrl = process.env.BACKEND_URL || 'https://llamadas-venezuela-production.up.railway.app';
 
+  // Respond with TwiML immediately — DB logging runs in background
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Dial callerId="${CALLER_ID}" timeout="30"
@@ -59,6 +49,19 @@ router.post('/', validateTwilioSignature, async (req, res) => {
     <Number>${dest}</Number>
   </Dial>
 </Response>`);
+
+  // Fire-and-forget: log to DB after TwiML is already on its way to Twilio
+  if (callSid) {
+    Operator.findOne({ where: { tenant_id: TENANT_ID } })
+      .then(operator => CallsService.recordCall({
+        tenantId: TENANT_ID,
+        operatorId: operator?.id ?? null,
+        callSid,
+        fromNumber: CALLER_ID,
+        toNumber: dest,
+      }))
+      .catch(() => {});
+  }
 });
 
 export default router;

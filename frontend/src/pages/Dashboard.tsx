@@ -80,9 +80,12 @@ export function Dashboard() {
     setCalling(true);
     setCallMsg(null);
     try {
-      await startCall(normalized);
-      setCallMsg({ type: 'success', text: 'Llamada iniciada — audio activo en el navegador' });
+      const call = await startCall(normalized);
+      setCallMsg({ type: 'success', text: 'Conectando...' });
       setToNumber('');
+      call.on('ringing', () => setCallMsg({ type: 'success', text: 'Repicando en destino...' }));
+      call.on('accept', () => setCallMsg({ type: 'success', text: 'Llamada en curso' }));
+      call.on('disconnect', () => setCallMsg(null));
     } catch (err: any) {
       setCallMsg({ type: 'error', text: err.message ?? 'Error al iniciar la llamada' });
     } finally {
