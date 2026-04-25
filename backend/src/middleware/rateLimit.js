@@ -14,3 +14,12 @@ export const loginLimiter = rateLimit({
   message: { error: 'Demasiados intentos de inicio de sesión. Espera 15 minutos.' },
   skipSuccessfulRequests: true
 });
+
+// 60 webhook requests per minute per IP — prevents webhook spam
+export const webhookLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  message: 'Too many webhook requests',
+  standardHeaders: false,
+  legacyHeaders: false,
+});

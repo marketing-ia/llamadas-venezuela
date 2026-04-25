@@ -25,7 +25,8 @@ router.post('/', validateTwilioSignature, async (req, res) => {
 <Response><Say language="es-MX">Bienvenido, un momento por favor.</Say></Response>`);
     }
 
-    const sipUri = callRecord.Operator.sip_uri;
+    const sipUri = callRecord.Operator.sip_uri
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
     res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>

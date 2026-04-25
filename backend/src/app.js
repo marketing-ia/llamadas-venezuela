@@ -6,6 +6,7 @@ import { authMiddleware } from './middleware/auth.js';
 import dotenv from 'dotenv';
 
 import { tenancyMiddleware } from './middleware/tenancy.js';
+import { webhookLimiter } from './middleware/rateLimit.js';
 import authRoutes from './routes/auth.routes.js';
 import callsRoutes from './routes/calls.routes.js';
 import operatorsRoutes from './routes/operators.routes.js';
@@ -72,10 +73,10 @@ app.get('/health', (req, res) => {
 
 // Unauthenticated routes (no tenancy middleware)
 app.use('/api/auth', authRoutes);
-app.use('/api/webhooks/twilio', twilioWebhook);
-app.use('/api/webhooks/twiml/app', twimlAppWebhook);
-app.use('/api/webhooks/twiml/inbound', twimlInboundWebhook);
-app.use('/api/webhooks/twiml', twimlWebhook);
+app.use('/api/webhooks/twilio', webhookLimiter, twilioWebhook);
+app.use('/api/webhooks/twiml/app', webhookLimiter, twimlAppWebhook);
+app.use('/api/webhooks/twiml/inbound', webhookLimiter, twimlInboundWebhook);
+app.use('/api/webhooks/twiml', webhookLimiter, twimlWebhook);
 
 // Auth + tenancy middleware for protected routes
 app.use('/api/', authMiddleware);

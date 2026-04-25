@@ -4,6 +4,16 @@ import { CallRecord, Operator } from '../models/index.js';
 
 const router = express.Router();
 
+function parseDateRange(startDate, endDate) {
+  const ISO_DATE = /^\d{4}-\d{2}-\d{2}(T[\d:.Z+-]*)?$/;
+  if (!startDate || !endDate) return null;
+  if (!ISO_DATE.test(startDate) || !ISO_DATE.test(endDate)) return null;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (isNaN(start) || isNaN(end) || start > end) return null;
+  return { start, end };
+}
+
 // GET /api/analytics/summary
 router.get('/summary', async (req, res) => {
   try {
@@ -12,7 +22,8 @@ router.get('/summary', async (req, res) => {
 
     const where = { tenant_id: tenantId };
     if (startDate && endDate) {
-      where.createdAt = { [Op.between]: [new Date(startDate), new Date(endDate)] };
+      const range = parseDateRange(startDate, endDate);
+      if (range) where.createdAt = { [Op.between]: [range.start, range.end] };
     }
 
     const totalCalls = await CallRecord.count({ where });
@@ -53,7 +64,8 @@ router.get('/operator-stats', async (req, res) => {
 
     const where = { tenant_id: tenantId };
     if (startDate && endDate) {
-      where.createdAt = { [Op.between]: [new Date(startDate), new Date(endDate)] };
+      const range = parseDateRange(startDate, endDate);
+      if (range) where.createdAt = { [Op.between]: [range.start, range.end] };
     }
 
     const stats = await CallRecord.findAll({
@@ -85,7 +97,8 @@ router.get('/daily', async (req, res) => {
 
     const where = { tenant_id: tenantId };
     if (startDate && endDate) {
-      where.createdAt = { [Op.between]: [new Date(startDate), new Date(endDate)] };
+      const range = parseDateRange(startDate, endDate);
+      if (range) where.createdAt = { [Op.between]: [range.start, range.end] };
     }
 
     const dailyStats = await CallRecord.findAll({

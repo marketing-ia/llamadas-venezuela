@@ -1,5 +1,6 @@
 import express from 'express';
 import { Operator } from '../models/index.js';
+import { validatePhoneNumber, validateSipUri } from '../utils/validation.js';
 
 const router = express.Router();
 
@@ -49,6 +50,12 @@ router.post('/', async (req, res) => {
     if (!name || !twilioNumber || !sipUri) {
       return res.status(400).json({ error: 'Missing required fields: name, twilioNumber, sipUri' });
     }
+    if (!validatePhoneNumber(twilioNumber)) {
+      return res.status(400).json({ error: 'twilioNumber must be E.164 format (e.g. +14155552671)' });
+    }
+    if (!validateSipUri(sipUri)) {
+      return res.status(400).json({ error: 'sipUri format invalid (e.g. sip:user@host.com)' });
+    }
 
     const operator = await Operator.create({
       tenant_id: tenantId,
@@ -79,6 +86,13 @@ router.put('/:id', async (req, res) => {
     }
 
     const { name, twilioNumber, sipUri } = req.body;
+
+    if (twilioNumber && !validatePhoneNumber(twilioNumber)) {
+      return res.status(400).json({ error: 'twilioNumber must be E.164 format' });
+    }
+    if (sipUri && !validateSipUri(sipUri)) {
+      return res.status(400).json({ error: 'sipUri format invalid' });
+    }
 
     if (name) operator.name = name;
     if (twilioNumber) operator.twilio_number = twilioNumber;

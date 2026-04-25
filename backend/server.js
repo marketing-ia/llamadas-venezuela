@@ -10,6 +10,14 @@ import TwilioService from './src/services/TwilioService.js';
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+// Fail-fast: warn loudly if critical secrets are using insecure fallbacks
+if (!process.env.JWT_SECRET) {
+  console.error('[SECURITY] JWT_SECRET env var is not set — using insecure fallback. Set it in Railway immediately.');
+}
+if (!process.env.ENCRYPTION_KEY) {
+  console.error('[SECURITY] ENCRYPTION_KEY env var is not set — Twilio credentials are encrypted with an all-zeros key.');
+}
+
 async function startServer() {
   try {
     await initializeDatabase(Tenant, OutboundNumber, User);
